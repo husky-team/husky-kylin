@@ -1,0 +1,13 @@
+# Make directories
+build
+debug
+release
+
+# Conf & scripts
+conf
+
+# Swap files
+*.swp
+
+# YCM
+.ycm_extra_conf.py

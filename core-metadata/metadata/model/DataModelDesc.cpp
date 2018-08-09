@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 
-#include "../../../../nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
