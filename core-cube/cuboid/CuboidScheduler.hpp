@@ -11,9 +11,22 @@ class CuboidScheduler
 public:
 	CuboidScheduler(CubeDesc * cubeDesc);
 	~CuboidScheduler();
+	int getCuboidCount();
+	std::set<long> getAllCuboidsIds();
+	bool isValid(long requestCuboid);
+	long findBestMatchCuboid(long cuboid);
+	long findBestMatchCuboid1(long cuboid);
+	std::pair<std::set<long>, std::map<long, std::list<long>>> buildTreeBottomUp();
+
 
 private:
 	long max;
 	std::set<long> allCuboidIds;
 	std::map<long, std::list<long>> parent2child;
+	long doFindBestMatchCuboid1(long cuboid);
+	long getOnTreeParent(long child);
+	long getParentOnPromise(long child, std::set<long> coll, int forward);
+	std::set<long> getOnTreeParentsByLayer(std::set<long> children);
+	std::set<long> getLowestCuboids();
+	std::set<long> getOnTreeParents(long child, std::set<AggregationGroup *> groups);
 };

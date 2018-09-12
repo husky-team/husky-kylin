@@ -9,3 +9,7 @@ CuboidScheduler::CuboidScheduler(CubeDesc * cubeDesc) {
 	this->allCuboidIDs = pair.getFirst();
 	this->parent2child = pair.getSecond();
 }
+
+int CuboidScheduler::getCuboidCount() {
+	return allCuboidIDs.size();
+}
