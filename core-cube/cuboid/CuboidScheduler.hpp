@@ -12,7 +12,8 @@ public:
 	CuboidScheduler(CubeDesc * cubeDesc);
 	~CuboidScheduler();
 	int getCuboidCount();
-	std::set<long> getAllCuboidsIds();
+	std::set<long> getAllCuboidIds();
+	std::list<long> getSpanningCuboid(long cuboid);
 	bool isValid(long requestCuboid);
 	long findBestMatchCuboid(long cuboid);
 	long findBestMatchCuboid1(long cuboid);
