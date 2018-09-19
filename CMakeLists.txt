@@ -1,18 +1,42 @@
+# Copyright 2018 Husky Team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 project(husky-kylin)
 
 cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+set(EXTERNAL_DEPENDENCIES "")
 
 ### Third-party
+# Submodule
 add_subdirectory(husky)
-include_directories(husky third_party) #${HUSKY_EXTERNAL_INCLUDE})
-#add_definitions(${HUSKY_EXTERNAL_DEFINITION})
+list(APPEND EXTERNAL_DEPENDENCIES husky)
+# Dependencies
+include(dep)
+# TODO: add thirdparty json to dep
+
+include_directories(husky third_party)
 
 ### Directories
 add_subdirectory(core-cube)
 add_subdirectory(core-metadata)
 add_subdirectory(test)
+add_subdirectory(examples)
+add_subdirectory(husky-orc)
 
 ### Executables
 add_executable(TestJSON parse_json.cpp)
