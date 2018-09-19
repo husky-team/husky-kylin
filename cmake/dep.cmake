@@ -22,6 +22,7 @@ set(THIRDPARTY_LOG_OPTIONS LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1 LOG_DOWNLOA
 
 set(ORC_VERSION "1.5.2")
 set(JSON_VERSION "3.2.0")
+set(PARQUET_VERSION "1.4.0")
 
 ### ORC ###
 
@@ -70,6 +71,55 @@ else(ORC_FOUND)
 endif(ORC_FOUND)
 
 ### END ORC ###
+
+### PARQUET ###
+
+set(PARQUET_DEFINITION "-DWITH_PARQUET")
+
+if (DEFINED ENV{PARQUET_HOME})
+  set(PARQUET_HOME "$ENV{PARQUET_HOME}")
+endif ()
+
+if (NOT "${PARQUET_HOME}" STREQUAL "")
+  find_package(Parquet REQUIRED)
+  set(PARQUET_VENDORED FALSE)
+else ()
+  set(PARQUET_HOME "${THIRDPARTY_DIR}/parquet")
+  set(PARQUET_INCLUDE_DIR "${PARQUET_HOME}/include")
+  set(PARQUET_LIBRARIES "${PARQUET_HOME}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}parquet${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  set(PARQUET_L1 "${PARQUET_HOME}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}arrow${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  set(PARQUET_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PARQUET_HOME})
+
+  ExternalProject_Add(parquet_ep
+    PREFIX ${THIRDPARTY_DIR}/parquet_ep
+    URL "https://github.com/apache/parquet-cpp/archive/apache-parquet-cpp-${PARQUET_VERSION}.tar.gz"
+    CMAKE_ARGS ${PARQUET_CMAKE_ARGS}
+    ${THIRDPARTY_LOG_OPTIONS})
+  #set(PARQUET_FOUND true)
+  list(APPEND EXTERNAL_DEPENDENCIES parquet_ep)
+endif ()
+
+if(PARQUET_FOUND)
+  message (STATUS "Found Parquet:")
+  message (STATUS "  (Headers)       ${PARQUET_INCLUDE_DIR}")
+  message (STATUS "  (Library)       ${PARQUET_LIBRARIES}")
+  message (STATUS "  (Library)       ${PARQUET_L1}")
+
+  list(APPEND EXTERNAL_INCLUDE "${PARQUET_INCLUDE_DIR}")
+  list(APPEND EXTERNAL_LIB ${PARQUET_LIBRARIES} ${PARQUET_L1}) # TODO tatiana: add arrow lib?
+  list(APPEND EXTERNAL_DEFINITION ${PARQUET_DEFINITION})
+else(PARQUET_FOUND)
+  message (WARNING "Could NOT find Parquet")
+endif(PARQUET_FOUND)
+
+### END PARQUET ###
+
+# TODO tatiana: find arrow from parquet install
+find_package(Arrow)
+  list(APPEND EXTERNAL_INCLUDE "${ARROW_INCLUDE_DIR}")
+  list(APPEND EXTERNAL_LIB ${ARROW_SHARED_LIB})
+if (ARROW_FOUND)
+endif()
 
 ### JSON ###
 

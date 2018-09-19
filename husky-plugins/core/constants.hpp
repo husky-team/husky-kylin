@@ -19,5 +19,6 @@
 namespace husky {
 
 const uint32_t TYPE_ORC_BLK_REQ = 0xfa2e32a1;
+const uint32_t TYPE_PARQUET_BLK_REQ = 0xfa3e22a2;
 
 }  // namespace husky

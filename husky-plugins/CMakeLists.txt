@@ -18,7 +18,9 @@ set(husky-kylin husky extension-husky-io extension-husky-master)
 ### IO ###
 file(GLOB io-input-src-files
     io/input/orc_file_splitter.cpp
-    io/input/orc_inputformat.cpp)
+    io/input/orc_inputformat.cpp
+    io/input/parquet_file_splitter.cpp
+    io/input/parquet_inputformat.cpp)
 
 husky_cache_variable(io-input-src-files ${io-input-src-files})
 
@@ -35,7 +37,12 @@ add_dependencies(extension-husky-master ${EXTERNAL_DEPENDENCIES})
 target_link_libraries(extension-husky-master husky)
 
 # Master
-add_executable(HuskyMaster ${PROJECT_SOURCE_DIR}/husky/master/master_main.cpp $<TARGET_OBJECTS:husky-master-objs> master/orc_assigner.cpp)
+add_executable(HuskyMaster
+  ${PROJECT_SOURCE_DIR}/husky/master/master_main.cpp
+  $<TARGET_OBJECTS:husky-master-objs>
+  master/orc_assigner.cpp
+  master/parquet_assigner.cpp
+  )
 target_link_libraries(HuskyMaster husky)
 target_link_libraries(HuskyMaster ${EXTERNAL_LIB})
 target_link_libraries(HuskyMaster ${HUSKY_EXTERNAL_LIB})

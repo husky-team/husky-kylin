@@ -1,5 +1,5 @@
 #ifdef WITH_ORC
-#include "husky-orc/io/input/orc_inputformat.hpp"
+#include "husky-plugins/io/input/orc_inputformat.hpp"
 
 #include <sstream>
 #include <string>

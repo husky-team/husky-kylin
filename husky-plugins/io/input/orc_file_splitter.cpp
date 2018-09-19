@@ -1,5 +1,5 @@
 #ifdef WITH_ORC
-#include "husky-orc/io/input/orc_file_splitter.hpp"
+#include "husky-plugins/io/input/orc_file_splitter.hpp"
 
 #include <string>
 
@@ -12,7 +12,7 @@
 #include "core/context.hpp"
 #include "core/coordinator.hpp"
 
-#include "husky-orc/core/constants.hpp"
+#include "husky-plugins/core/constants.hpp"
 
 namespace husky {
 namespace io {

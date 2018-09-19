@@ -9,7 +9,7 @@
 
 #include "io/input/inputformat_base.hpp"
 
-#include "husky-orc/io/input/orc_file_splitter.hpp"
+#include "husky-plugins/io/input/orc_file_splitter.hpp"
 
 namespace husky {
 namespace io {

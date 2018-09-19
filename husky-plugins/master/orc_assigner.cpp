@@ -1,5 +1,5 @@
 #ifdef WITH_ORC
-#include "husky-orc/master/orc_assigner.hpp"
+#include "husky-plugins/master/orc_assigner.hpp"
 
 #include <fstream>
 #include <string>
@@ -13,7 +13,7 @@
 #include "core/context.hpp"
 #include "master/master.hpp"
 
-#include "husky-orc/core/constants.hpp"
+#include "husky-plugins/core/constants.hpp"
 
 namespace husky {
 

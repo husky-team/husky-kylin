@@ -8,7 +8,7 @@
 #include "io/input/inputformat_store.hpp"
 #include "lib/aggregator_factory.hpp"
 
-#include "husky-orc/io/input/orc_inputformat.hpp"
+#include "husky-plugins/io/input/orc_inputformat.hpp"
 
 class Word {
  public:
