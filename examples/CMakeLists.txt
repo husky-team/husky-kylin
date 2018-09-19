@@ -25,3 +25,9 @@ target_link_libraries(WordCountORC ${EXTERNAL_LIB})
 target_link_libraries(WordCountORC ${HUSKY_EXTERNAL_LIB})
 set_property(TARGET WordCountORC PROPERTY CXX_STANDARD 14)
 add_dependencies(WordCountORC ${EXTERNAL_DEPENDENCIES})
+
+# TestJSON: load json from hdfs and parse
+add_executable(TestJSON parse_json.cpp)
+target_link_libraries(TestJSON husky)
+target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB})
+add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})

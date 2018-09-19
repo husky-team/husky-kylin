@@ -24,12 +24,11 @@ set(EXTERNAL_DEPENDENCIES "")
 ### Third-party
 # Submodule
 add_subdirectory(husky)
+include_directories(husky)
 list(APPEND EXTERNAL_DEPENDENCIES husky)
+
 # Dependencies
 include(dep)
-# TODO: add thirdparty json to dep
-
-include_directories(husky third_party)
 
 ### Directories
 add_subdirectory(core-cube)
@@ -37,8 +36,3 @@ add_subdirectory(core-metadata)
 add_subdirectory(test)
 add_subdirectory(examples)
 add_subdirectory(husky-orc)
-
-### Executables
-add_executable(TestJSON parse_json.cpp)
-target_link_libraries(TestJSON husky)
-target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB})

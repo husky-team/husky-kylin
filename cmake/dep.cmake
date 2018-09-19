@@ -20,8 +20,11 @@ set(EXTERNAL_DEFINITION "")
 set(THIRDPARTY_DIR ${PROJECT_BINARY_DIR}/third_party)
 set(THIRDPARTY_LOG_OPTIONS LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1 LOG_DOWNLOAD 1)
 
-### ORC ###
 set(ORC_VERSION "1.5.2")
+set(JSON_VERSION "3.2.0")
+
+### ORC ###
+
 set(ORC_DEFINITION "-DWITH_ORC")
 
 if (DEFINED ENV{ORC_HOME})
@@ -65,7 +68,38 @@ if(ORC_FOUND)
 else(ORC_FOUND)
   message (FATAL_ERROR "Could NOT find ORC")
 endif(ORC_FOUND)
+
 ### END ORC ###
+
+### JSON ###
+
+if (NOT "${JSON_INCLUDE_DIR}" STREQUAL "")
+  file(TO_CMAKE_PATH ${JSON_INCLUDE_DIR} _json_path)
+endif()
+
+find_path (JSON_INCLUDE_DIR NAMES "nlohmann/json.hpp" HINTS ${_json_path})
+
+if (JSON_INCLUDE_DIR)
+  message (STATUS "Found nlohmann/json.hpp:")
+  message (STATUS "  (Headers)       ${JSON_INCLUDE_DIR}")
+  list(APPEND EXTERNAL_INCLUDE "${JSON_INCLUDE_DIR}")
+else()
+  ExternalProject_Add(json_ep
+    PREFIX ${THIRDPARTY_DIR}/nlohmann
+    DOWNLOAD_DIR ${THIRDPARTY_DIR}/nlohmann
+    DOWNLOAD_NO_EXTRACT true
+    SOURCE_DIR ""
+    BINARY_DIR ""
+    URL "https://github.com/nlohmann/json/releases/download/v${JSON_VERSION}/json.hpp"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    ${THIRDPARTY_LOG_OPTIONS})
+  list(APPEND EXTERNAL_DEPENDENCIES json_ep)
+  list(APPEND EXTERNAL_INCLUDE "${THIRDPARTY_DIR}")
+endif()
+
+### END JSON ###
 
 include_directories(${EXTERNAL_INCLUDE})
 add_definitions(${EXTERNAL_DEFINITION})
