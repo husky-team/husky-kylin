@@ -16,7 +16,7 @@ Build
 Download the latest source code of Husky-Kylin:
 
 ```bash
-git clone https://github.com/husky-team/husky-kylin.git
+git clone --recursive https://github.com/husky-team/husky-kylin.git
 cd husky-kylin
 ```
 
