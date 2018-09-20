@@ -1,3 +1,17 @@
+// Copyright 2018 Husky Team
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifdef WITH_ORC
 #include "husky-plugins/io/input/orc_inputformat.hpp"
 
@@ -19,9 +33,11 @@ enum ORCInputFormatSetUp {
 };
 
 ORCInputFormat::ORCInputFormat() { is_setup_ = ORCInputFormatSetUp::NotSetUp; }
+
 bool ORCInputFormat::is_setup() const {
   return !(is_setup_ ^ ORCInputFormatSetUp::AllSetUp);
 }
+
 void ORCInputFormat::set_input(const std::string& url) {
   if (!url_.empty() && url_ == url)
     // Setting with a same url last time will do nothing.
@@ -34,6 +50,7 @@ void ORCInputFormat::set_input(const std::string& url) {
   splitter_.load(url_.substr(prefix + 3));
   is_setup_ |= ORCInputFormatSetUp::InputSetUp;
 }
+
 // buffer_ got from the orc_splitter must be '\n' seperated lines
 // this saves us a lot of block handling
 bool ORCInputFormat::next(boost::string_ref& ref) {
@@ -46,9 +63,11 @@ bool ORCInputFormat::next(boost::string_ref& ref) {
   }
   r = helper::find_next(buffer_, l, '\n');
   ref = buffer_.substr(l, r - l);
+  // FIXME dy: this is equal to l = r + 1;
   l = helper::find_next(buffer_, r, '\n') + 1;
   return true;
 }
+
 bool ORCInputFormat::fetch_new_block() {
   // fetch a new block
   buffer_ = splitter_.fetch_block();
@@ -57,10 +76,12 @@ bool ORCInputFormat::fetch_new_block() {
   }
   return true;
 }
+
 void ORCInputFormat::clear_buffer() {
   buffer_.clear();
   l = r = 0;
 }
+
 }  // namespace io
 }  // namespace husky
 #endif

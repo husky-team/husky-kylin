@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 #ifdef WITH_PARQUET
+#pragma once
 
 #include <string>
 
