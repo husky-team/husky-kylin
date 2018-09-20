@@ -21,3 +21,12 @@ if (ORC_INCLUDE_DIR_INNER AND ORC_L0 AND ORC_L0 AND ORC_L2 AND ORC_L3 AND ORC_L4
   set(ORC_FOUND true)
 endif()
 
+if(ORC_FOUND)
+  message (STATUS "Found ORC:")
+  message (STATUS "  (Headers)       ${ORC_INCLUDE_DIR}")
+  message (STATUS "  (Library)       ${ORC_L0}")
+  message (STATUS "  (Library)       ${ORC_L1}")
+  message (STATUS "  (Library)       ${ORC_L2}")
+  message (STATUS "  (Library)       ${ORC_L3}")
+  message (STATUS "  (Library)       ${ORC_L4}")
+endif()

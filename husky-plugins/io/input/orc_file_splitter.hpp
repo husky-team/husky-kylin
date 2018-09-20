@@ -1,3 +1,17 @@
+// Copyright 2018 Husky Team
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifdef WITH_ORC
 #pragma once
 
@@ -31,6 +45,8 @@ class ORCFileSplitter final : public FileSplitterBase {
   inline size_t get_offset() { return offset_; }
 
  protected:
+  // TODO dy: coding style: names of private and protected variables end with
+  // underscore
   void read_by_row(std::string fn);
   // url may be a directory or a file
   std::string url_;
@@ -47,6 +63,7 @@ class ORCFileSplitter final : public FileSplitterBase {
   // orc reader to help to read orc files
   std::unique_ptr<orc::Reader> reader;
 };
+
 }  // namespace husky
 }  // namespace io
 #endif

@@ -1,3 +1,17 @@
+// Copyright 2018 Husky Team
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifdef WITH_ORC
 #include "husky-plugins/io/input/orc_file_splitter.hpp"
 
@@ -24,8 +38,10 @@ using orc::ColumnVectorBatch;
 
 // default number of lines in one read operation
 size_t ORCFileSplitter::row_batch_size = 8 * 1024;
+
 ORCFileSplitter::ORCFileSplitter() { offset_ = 0; }
 ORCFileSplitter::~ORCFileSplitter() {}
+
 // initialize reader with the file url
 // TODO:
 // 1. add orcReaderOptions
@@ -35,6 +51,7 @@ void ORCFileSplitter::load(std::string url) {
   url_ = url;
   protocol_ = "nfs";
 }
+
 // ask master for offset and url
 // we are not using fn for now since url is not a directory
 boost::string_ref ORCFileSplitter::fetch_block(bool is_next) {
@@ -59,6 +76,7 @@ boost::string_ref ORCFileSplitter::fetch_block(bool is_next) {
   read_by_row(fn);
   return boost::string_ref(buffer);
 }
+
 void ORCFileSplitter::read_by_row(std::string fn) {
   if (protocol_ == "hdfs") {
     return;
