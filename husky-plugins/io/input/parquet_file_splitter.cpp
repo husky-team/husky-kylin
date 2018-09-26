@@ -14,6 +14,8 @@
 
 #ifdef WITH_PARQUET
 
+#include "husky-plugins/io/input/parquet_file_splitter.hpp"
+
 #include <string>
 
 #include "parquet/column_reader.h"
@@ -28,7 +30,6 @@
 #include "core/coordinator.hpp"
 
 #include "husky-plugins/core/constants.hpp"
-#include "husky-plugins/io/input/parquet_file_splitter.hpp"
 
 namespace husky {
 namespace io {
@@ -78,14 +79,14 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
     try {
       std::string line = "";
       parquet::ParquetFilePrinter printer(reader_.get());
-      const parquet::FileMetaData* FileMetadata = reader_->metadata().get();
-      auto GroupReader = reader_->RowGroup(offset_);
+      const parquet::FileMetaData* file_metadata = reader_->metadata().get();
+      auto group_reader = reader_->RowGroup(offset_);
       // Create readers for selected columns and print contents
       std::vector<std::shared_ptr<parquet::Scanner>> scanners(
-          FileMetadata->num_columns(), nullptr);
-      for (int i = 0; i < FileMetadata->num_columns(); i++) {
-        std::shared_ptr<parquet::ColumnReader> ColReader =
-            GroupReader->Column(i);
+          file_metadata->num_columns(), nullptr);
+      for (int i = 0; i < file_metadata->num_columns(); i++) {
+        std::shared_ptr<parquet::ColumnReader> col_reader =
+            group_reader->Column(i);
         // This is OK in this method as long as the RowGroupReader does not get
         // deleted
         scanners[i] = parquet::Scanner::Make(ColReader);

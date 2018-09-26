@@ -14,6 +14,8 @@
 
 #ifdef WITH_PARQUET
 
+#include "husky-plugins/master/parquet_assigner.hpp"
+
 #include <fstream>
 #include <string>
 #include <utility>
@@ -27,7 +29,6 @@
 #include "core/context.hpp"
 #include "master/master.hpp"
 
-#include "husky-plugins/master/parquet_assigner.hpp"
 #include "husky-plugins/core/constants.hpp"
 
 namespace husky {
@@ -69,8 +70,8 @@ void PARQUETBlockAssigner::browse_local(const std::string& url) {
     if (boost::filesystem::exists(url)) {
       if (boost::filesystem::is_regular_file(url)) {
         reader_ = parquet::ParquetFileReader::OpenFile(url, true);
-        const parquet::FileMetaData* FileMetadata = reader_->metadata().get();
-        file_size_[url] = FileMetadata->num_row_groups();
+        const parquet::FileMetaData* file_metadata = reader_->metadata().get();
+        file_size_[url] = file_metadata->num_row_groups();
         file_offset_[url] = 0;
         finish_dict_[url] = 0;
       } else if (boost::filesystem::is_directory(url)) {
@@ -80,9 +81,9 @@ void PARQUETBlockAssigner::browse_local(const std::string& url) {
           std::string path = files.path().string();
           if (boost::filesystem::is_regular_file(path)) {
             reader_ = parquet::ParquetFileReader::OpenFile(url, true);
-            const parquet::FileMetaData* FileMetadata =
+            const parquet::FileMetaData* file_metadata =
                 reader_->metadata().get();
-            file_size_[url] = FileMetadata->num_row_groups();
+            file_size_[url] = file_metadata->num_row_groups();
             file_offset_[path] = 0;
             finish_dict_[path] = 0;
           }
