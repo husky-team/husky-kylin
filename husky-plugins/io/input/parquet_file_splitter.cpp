@@ -89,7 +89,7 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
             group_reader->Column(i);
         // This is OK in this method as long as the RowGroupReader does not get
         // deleted
-        scanners[i] = parquet::Scanner::Make(ColReader);
+        scanners[i] = parquet::Scanner::Make(col_reader);
       }
       bool hasRow;
       do {

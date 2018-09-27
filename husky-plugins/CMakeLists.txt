@@ -30,7 +30,8 @@ target_link_libraries(extension-husky-io husky)
 
 ### MASTER ###
 file(GLOB master-src-files
-    master/orc_assigner.cpp)
+    master/orc_assigner.cpp
+    master/parquet_assigner.cpp)
 
 add_library(extension-husky-master STATIC ${master-src-files})
 add_dependencies(extension-husky-master ${EXTERNAL_DEPENDENCIES})

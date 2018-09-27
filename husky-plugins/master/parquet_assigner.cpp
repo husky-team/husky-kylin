@@ -61,7 +61,7 @@ void PARQUETBlockAssigner::master_main_handler() {
 }
 
 void PARQUETBlockAssigner::master_setup_handler() {
-  num_workers_alive = Context::get_worker_info().get_num_workers();
+  num_workers_alive_ = Context::get_worker_info().get_num_workers();
 }
 
 void PARQUETBlockAssigner::browse_local(const std::string& url) {
@@ -127,7 +127,7 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
         } else {
           finish_dict_[path] += 1;
           if (finish_dict_[path] == num_workers_alive_) {
-            finish_url_(path);
+            finish_url(path);
           }
           // need to search for next file
           continue;
@@ -139,7 +139,7 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
   if (ret.first == "" && ret.second == 0) {
     finish_dict_[url] += 1;
     if (finish_dict_[url] == num_workers_alive_) {
-      finish_url_(url);
+      finish_url(url);
     }
   }
   // Once ret hasn't been assigned value, answer(url) will not be called
