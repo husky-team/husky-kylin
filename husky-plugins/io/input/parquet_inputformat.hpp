@@ -28,25 +28,25 @@ namespace husky {
 namespace io {
 
 class PARQUETInputFormat : public InputFormatBase {
- public:
-  typedef boost::string_ref RecordT;
+   public:
+    typedef boost::string_ref RecordT;
 
-  PARQUETInputFormat();
-  virtual ~PARQUETInputFormat() = default;
+    PARQUETInputFormat();
+    virtual ~PARQUETInputFormat() = default;
 
-  virtual void set_input(const std::string& url);
-  virtual bool next(boost::string_ref& ref);
-  virtual bool is_setup() const;
+    virtual void set_input(const std::string& url);
+    virtual bool next(boost::string_ref& ref);
+    virtual bool is_setup() const;
 
- protected:
-  bool fetch_new_block();
-  void clear_buffer();
-  std::string url_;
+   protected:
+    bool fetch_new_block();
+    void clear_buffer();
+    std::string url_;
 
-  int l = 0;
-  int r = 0;
-  boost::string_ref buffer_;
-  PARQUETFileSplitter splitter_;
+    int l = 0;
+    int r = 0;
+    boost::string_ref buffer_;
+    PARQUETFileSplitter splitter_;
 };
 
 }  // namespace io

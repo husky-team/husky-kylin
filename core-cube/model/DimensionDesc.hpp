@@ -1,21 +1,20 @@
-#include <vector>;
 #include <string>;
+#include <vector>;
 
-class DimensionDesc
-{
-public:
-	DimensionDesc(std::string name, std::string table, std::string column);
-	~DimensionDesc();
-	
-private:
-	// from json
-	std::string name;
-	std::string table;
-	std::string column;
-	// std::vector<std::string> derived;
+class DimensionDesc {
+   public:
+    DimensionDesc(std::string name, std::string table, std::string column);
+    ~DimensionDesc();
 
-	// computed attributes
-	TableRef * tableRef;
-	TblColRef* columnRef; // suppose no derived columns
-	// std::vector<TblColRef* > columnRefs; 
+   private:
+    // from json
+    std::string name;
+    std::string table;
+    std::string column;
+    // std::vector<std::string> derived;
+
+    // computed attributes
+    TableRef* tableRef;
+    TblColRef* columnRef;  // suppose no derived columns
+                           // std::vector<TblColRef* > columnRefs;
 };

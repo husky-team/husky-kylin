@@ -12,22 +12,21 @@ class DataModelDesc;
 class TableDesc;
 class TblColRef;
 
-class TableRef
-{
-public:
-	TableRef(DataModelDesc * model, const std::string& alias, TableDesc * table);
-	~TableRef();
-	TblColRef * getColumn(const std::string& name);
-	std::string getAlias();
-	TableDesc * getTableDesc();
-	std::string getTableName();
-	
-private:
-	DataModelDesc * model;
-	std::string alias;
-	TableDesc * table;
-	std::map<std::string, TblColRef * > columns;
-	std::string modelName;
+class TableRef {
+   public:
+    TableRef(DataModelDesc* model, const std::string& alias, TableDesc* table);
+    ~TableRef();
+    TblColRef* getColumn(const std::string& name);
+    std::string getAlias();
+    TableDesc* getTableDesc();
+    std::string getTableName();
+
+   private:
+    DataModelDesc* model;
+    std::string alias;
+    TableDesc* table;
+    std::map<std::string, TblColRef*> columns;
+    std::string modelName;
 };
 
 #endif

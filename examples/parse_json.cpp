@@ -10,12 +10,9 @@ using JSON = nlohmann::json;
 
 void execute() {
     // set chunk size to max
-    auto& infmt =
-        husky::io::InputFormatStore::create_chunk_inputformat(~0u >> 1);
+    auto& infmt = husky::io::InputFormatStore::create_chunk_inputformat(~0u >> 1);
     infmt.set_input(husky::Context::get_param("input"));
-    auto parse_json = [&](boost::string_ref& chunk) {
-        husky::LOG_I << JSON::parse(chunk).dump(1, ' ', true);
-    };
+    auto parse_json = [&](boost::string_ref& chunk) { husky::LOG_I << JSON::parse(chunk).dump(1, ' ', true); };
     husky::load(infmt, parse_json);
 }
 

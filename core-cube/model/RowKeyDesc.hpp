@@ -1,9 +1,7 @@
 #include "tblColRef.hpp"
 
-class RowKeyDesc
-{
-public:
-	RowKeyDesc();
-	~RowKeyDesc();
-	
+class RowKeyDesc {
+   public:
+    RowKeyDesc();
+    ~RowKeyDesc();
 };
