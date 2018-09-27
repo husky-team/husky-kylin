@@ -23,8 +23,7 @@
 
 #include "io/input/file_splitter_base.hpp"
 
-namespace husky {
-namespace io {
+namespace husky { namespace io {
 
 class ORCFileSplitter final : public FileSplitterBase {
  public:

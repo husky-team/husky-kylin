@@ -14,6 +14,8 @@
 
 #ifdef WITH_PARQUET
 
+#include "husky-plugins/master/parquet_assigner.hpp"
+
 #include <fstream>
 #include <string>
 #include <utility>
@@ -27,7 +29,6 @@
 #include "core/context.hpp"
 #include "master/master.hpp"
 
-#include "husky-plugins/master/parquet_assigner.hpp"
 #include "husky-plugins/core/constants.hpp"
 
 namespace husky {
@@ -68,24 +69,23 @@ void PARQUETBlockAssigner::browse_local(const std::string& url) {
   try {
     if (boost::filesystem::exists(url)) {
       if (boost::filesystem::is_regular_file(url)) {
-        std::unique_ptr<parquet::ParquetFileReader> reader;
-        reader = parquet::ParquetFileReader::OpenFile(url, true);
-        const parquet::FileMetaData* file_metadata = reader->metadata().get();
-        file_size[url] = file_metadata->num_row_groups();
-        file_offset[url] = 0;
-        finish_dict[url] = 0;
+        reader_ = parquet::ParquetFileReader::OpenFile(url, true);
+        const parquet::FileMetaData* file_metadata = reader_->metadata().get();
+        file_size_[url] = file_metadata->num_row_groups();
+        file_offset_[url] = 0;
+        finish_dict_[url] = 0;
       } else if (boost::filesystem::is_directory(url)) {
         // url should also be included in the finish_dict
-        finish_dict[url] = 0;
+        finish_dict_[url] = 0;
         for (auto files : boost::filesystem::directory_iterator(url)) {
           std::string path = files.path().string();
           if (boost::filesystem::is_regular_file(path)) {
-            std::unique_ptr<parquet::ParquetFileReader> reader;
+            reader_ = parquet::ParquetFileReader::OpenFile(url, true);
             const parquet::FileMetaData* file_metadata =
-                reader->metadata().get();
-            file_size[url] = file_metadata->num_row_groups();
-            file_offset[path] = 0;
-            finish_dict[path] = 0;
+                reader_->metadata().get();
+            file_size_[url] = file_metadata->num_row_groups();
+            file_offset_[path] = 0;
+            finish_dict_[path] = 0;
           }
         }
       } else {
@@ -105,29 +105,29 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
   // Directory or file status initialization
   // This condition is true either when the begining of the file or
   // all the workers has finished reading this file or directory
-  if (finish_dict.find(url) == finish_dict.end()) browse_local(url);
+  if (finish_dict_.find(url) == finish_dict_.end()) browse_local(url);
   std::pair<std::string, size_t> ret = {"", 0};  // selected_file, offset
   if (boost::filesystem::is_regular_file(url)) {
-    if (file_offset[url] < file_size[url]) {
+    if (file_offset_[url] < file_size_[url]) {
       ret.first = url;
-      ret.second = file_offset[url];
-      file_offset[url] += 1;
+      ret.second = file_offset_[url];
+      file_offset_[url] += 1;
     }
   } else if (boost::filesystem::is_directory(url)) {
     for (auto files : boost::filesystem::directory_iterator(url)) {
       std::string path = files.path().string();
       // if this file hasn't been finished
-      if (finish_dict.find(path) != finish_dict.end()) {
-        if (file_offset[path] < file_size[path]) {
+      if (finish_dict_.find(path) != finish_dict_.end()) {
+        if (file_offset_[path] < file_size_[path]) {
           ret.first = path;
-          ret.second = file_offset[path];
-          file_offset[path] += 1;
+          ret.second = file_offset_[path];
+          file_offset_[path] += 1;
           // no need to continue searching for next file
           break;
         } else {
-          finish_dict[path] += 1;
-          if (finish_dict[path] == num_workers_alive) {
-            finish_url(path);
+          finish_dict_[path] += 1;
+          if (finish_dict_[path] == num_workers_alive_) {
+            finish_url_(path);
           }
           // need to search for next file
           continue;
@@ -137,9 +137,9 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
   }
   // count how many workers won't ask for an answer
   if (ret.first == "" && ret.second == 0) {
-    finish_dict[url] += 1;
-    if (finish_dict[url] == num_workers_alive) {
-      finish_url(url);
+    finish_dict_[url] += 1;
+    if (finish_dict_[url] == num_workers_alive_) {
+      finish_url_(url);
     }
   }
   // Once ret hasn't been assigned value, answer(url) will not be called
@@ -154,14 +154,14 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
 /// Return the number of workers who have finished reading the files in
 /// the given url
 int PARQUETBlockAssigner::get_num_finished(std::string& url) {
-  return finish_dict[url];
+  return finish_dict_[url];
 }
 
 /// Use this when all workers finish reading the files in url
 void PARQUETBlockAssigner::finish_url(std::string& url) {
-  file_size.erase(url);
-  file_offset.erase(url);
-  finish_dict.erase(url);
+  file_size_.erase(url);
+  file_offset_.erase(url);
+  finish_dict_.erase(url);
 }
 
 }  // namespace husky

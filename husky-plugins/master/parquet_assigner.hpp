@@ -43,11 +43,11 @@ class PARQUETBlockAssigner {
 
  private:
   // int row_batch_size = 8*1024;
-  int num_workers_alive;
-  std::map<std::string, size_t> file_offset;
-  std::map<std::string, size_t> file_size;
-  std::map<std::string, int> finish_dict;
-  std::unique_ptr<parquet::ParquetFileReader> reader;
+  int num_workers_alive_;
+  std::map<std::string, size_t> file_offset_;
+  std::map<std::string, size_t> file_size_;
+  std::map<std::string, int> finish_dict_;
+  std::unique_ptr<parquet::ParquetFileReader> reader_;
 };
 
 }  // namespace husky

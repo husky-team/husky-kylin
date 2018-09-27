@@ -54,7 +54,7 @@ class PARQUETFileSplitter final : public FileSplitterBase {
   std::string url_;
 
   // row_batch_size lines of record
-  std::string buffer;
+  std::string buffer_;
 
   // starting position of reading
   int offset_;
@@ -66,10 +66,10 @@ class PARQUETFileSplitter final : public FileSplitterBase {
   std::string protocol_;
 
   // current filename
-  std::string cur_fn;
+  std::string cur_fn_;
 
   // PARQUET reader to help to read PARQUET files
-  std::unique_ptr<parquet::ParquetFileReader> reader;
+  std::unique_ptr<parquet::ParquetFileReader> reader_;
 };
 
 }  // namespace husky

@@ -34,11 +34,6 @@
 namespace husky {
 namespace io {
 
-// using PARQUET::ReaderOptions;
-// using PARQUET::createReader;
-// using PARQUET::readLocalFile;
-// using PARQUET::ColumnVectorBatch;
-
 // default number of lines in one read operation
 // size_t PARQUETFileSplitter::row_batch_size = 8*1024;
 
@@ -50,7 +45,7 @@ PARQUETFileSplitter::~PARQUETFileSplitter() {}
 // 1. add PARQUETReaderOptions
 // 2. readHdfsFile(url)
 void PARQUETFileSplitter::load(std::string url) {
-  cur_fn = "";
+  cur_fn_ = "";
   url_ = url;
   protocol_ = "nfs";
 }
@@ -67,13 +62,13 @@ boost::string_ref PARQUETFileSplitter::fetch_block(bool is_next) {
   answer >> offset_;
   if (fn == "") {
     return "";
-  } else if (fn != cur_fn) {
-    cur_fn = fn;
+  } else if (fn != cur_fn_) {
+    cur_fn_ = fn;
     bool memory_map = true;
-    reader = parquet::ParquetFileReader::OpenFile(cur_fn, memory_map);
+    reader_ = parquet::ParquetFileReader::OpenFile(cur_fn_, memory_map);
   }
   read_by_row(fn);
-  return boost::string_ref(buffer);
+  return boost::string_ref(buffer_);
 }
 
 void PARQUETFileSplitter::read_by_row(std::string fn) {
@@ -83,9 +78,9 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
   } else if (protocol_ == "nfs") {
     try {
       std::string line = "";
-      parquet::ParquetFilePrinter printer(reader.get());
-      const parquet::FileMetaData* file_metadata = reader->metadata().get();
-      auto group_reader = reader->RowGroup(offset_);
+      parquet::ParquetFilePrinter printer(reader_.get());
+      const parquet::FileMetaData* file_metadata = reader_->metadata().get();
+      auto group_reader = reader_->RowGroup(offset_);
       // Create readers for selected columns and print contents
       std::vector<std::shared_ptr<parquet::Scanner>> scanners(
           file_metadata->num_columns(), nullptr);
@@ -94,7 +89,7 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
             group_reader->Column(i);
         // This is OK in this method as long as the RowGroupReader does not get
         // deleted
-        scanners[i] = parquet::Scanner::Make(col_reader);
+        scanners[i] = parquet::Scanner::Make(ColReader);
       }
       bool hasRow;
       do {
@@ -104,10 +99,10 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
             std::stringstream stream;
             hasRow = true;
             scanner->PrintNext(stream, 27);
-            buffer += stream.str();
+            buffer_ += stream.str();
           }
         }
-        buffer += "\n";
+        buffer_ += "\n";
       } while (hasRow);
 
     } catch (const std::exception& e) {
