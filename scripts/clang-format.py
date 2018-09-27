@@ -8,18 +8,16 @@ import sys
 
 cpp_suffix = '*.[cht]pp'
 default_dirs = [
-    'base',
-    'core',
-    'io',
-    'lib',
-    'master',
+    'core-cube',
+    'core-metadata',
+    'examples',
+    'husky-plugins',
+    'test',
+    'utils',
 ]
 ignored_dirs = [
-    'io/input/flume_connector',
 ]
 
-husky_root = os.getenv('HUSKY_ROOT', '.')
-os.chdir(husky_root)
 clang_format = os.getenv('CLANG_FORMAT', 'clang-format')
 
 def list_files(path=None):

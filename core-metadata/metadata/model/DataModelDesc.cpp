@@ -1,60 +1,58 @@
 #include "DataModelDesc.hpp"
 
+#include "ModelDimensionDesc.hpp"
 #include "TableDesc.hpp"
 #include "TableRef.hpp"
 #include "TblColRef.hpp"
-#include "ModelDimensionDesc.hpp"
 
-#include <utility>
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <stdexcept>
-#include <boost/algorithm/string.hpp>
+#include <utility>
 
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
 DataModelDesc::DataModelDesc() {
-	std::string modelJsonPath = "model.json"; // should be in hdfs
-	std::ifstream ifs(modelJsonPath); 
-	json j = json::parse(ifs);
+    std::string modelJsonPath = "model.json";  // should be in hdfs
+    std::ifstream ifs(modelJsonPath);
+    json j = json::parse(ifs);
 
-	name = j["name"].get<std::string>();
-	// owner = j["owner"].get<std::string>();
-	rootFactTable = j["fact_table"].get<std::string>();
+    name = j["name"].get<std::string>();
+    // owner = j["owner"].get<std::string>();
+    rootFactTable = j["fact_table"].get<std::string>();
 
-	// init rootFactTableRef
-	TableDesc * rootFactTableDesc = new TableDesc();
-	std::string rootFactTableName = rootFactTableDesc->getName();
-	rootFactTableRef = new TableRef(this, rootFactTableName, rootFactTableDesc);
-	addTableName(rootFactTableName, rootFactTableRef);
+    // init rootFactTableRef
+    TableDesc* rootFactTableDesc = new TableDesc();
+    std::string rootFactTableName = rootFactTableDesc->getName();
+    rootFactTableRef = new TableRef(this, rootFactTableName, rootFactTableDesc);
+    addTableName(rootFactTableName, rootFactTableRef);
 
-	// init dimensions
-	json j_dimensions = j["dimensions"];
-	for(json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
-		std::string table = (*it)["table"].get<std::string>();
+    // init dimensions
+    json j_dimensions = j["dimensions"];
+    for (json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
+        std::string table = (*it)["table"].get<std::string>();
 
-		json j_columns = (*it)["columns"];
-		std::vector<std::string> columns;
-		for(json::iterator it = j_columns.begin(); it != j_columns.end(); it++) {
-			columns.push_back((*it).get<std::string>());
-		}
+        json j_columns = (*it)["columns"];
+        std::vector<std::string> columns;
+        for (json::iterator it = j_columns.begin(); it != j_columns.end(); it++) {
+            columns.push_back((*it).get<std::string>());
+        }
 
-		dimensions.push_back(new ModelDimensionDesc(table, columns));
-	}
+        dimensions.push_back(new ModelDimensionDesc(table, columns));
+    }
 
-	// init metrics
-	json j_metrics = j["metrics"];
-	for(json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
-		metrics.push_back((*it).get<std::string>());
-	}
+    // init metrics
+    json j_metrics = j["metrics"];
+    for (json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
+        metrics.push_back((*it).get<std::string>());
+    }
 }
 
 DataModelDesc::~DataModelDesc() {}
 
-std::string DataModelDesc::getName() {
-	return name;
-}
+std::string DataModelDesc::getName() { return name; }
 
 // std::string DataModelDesc::getOwner() {
 // 	return owner;
@@ -64,17 +62,15 @@ std::string DataModelDesc::getName() {
 // 	this->owner = owner;
 // }
 
-TableRef * DataModelDesc::getRootFactTableRef() {
-	return rootFactTableRef;
-}
+TableRef* DataModelDesc::getRootFactTableRef() { return rootFactTableRef; }
 
-void DataModelDesc::addTableName(std::string& name, TableRef * ref) {
-	if(tableNameMap.count(name)) {
-		tableNameMap.insert( std::pair<std::string, TableRef*>(name, NULL) );
-	} else {
-		tableNameMap.insert( std::pair<std::string, TableRef*>(name, ref) );
-		allTableRefs.insert(ref);
-	}
+void DataModelDesc::addTableName(std::string& name, TableRef* ref) {
+    if (tableNameMap.count(name)) {
+        tableNameMap.insert(std::pair<std::string, TableRef*>(name, NULL));
+    } else {
+        tableNameMap.insert(std::pair<std::string, TableRef*>(name, ref));
+        allTableRefs.insert(ref);
+    }
 }
 
 // void DataModelDesc::addAlias(TableRef * ref) {
@@ -88,42 +84,42 @@ void DataModelDesc::addTableName(std::string& name, TableRef * ref) {
 // 	addTableName(table->getIdentity(), ref);
 // }
 
-TableRef * DataModelDesc::findTable(std::string& table) {
-	boost::to_upper(table);
-	TableRef * result = tableNameMap.find(table)->second;
-	// error detection: result == NULL
-	return result;
+TableRef* DataModelDesc::findTable(std::string& table) {
+    boost::to_upper(table);
+    TableRef* result = tableNameMap.find(table)->second;
+    // error detection: result == NULL
+    return result;
 }
 
-TblColRef * DataModelDesc::findColumn(std::string& table, std::string& column) {
-	TableRef * tableRef = findTable(table);
-	boost::to_upper(column);
-	TblColRef * result = tableRef->getColumn(column);
-	// error detection: result == NULL
-	return result;
+TblColRef* DataModelDesc::findColumn(std::string& table, std::string& column) {
+    TableRef* tableRef = findTable(table);
+    boost::to_upper(column);
+    TblColRef* result = tableRef->getColumn(column);
+    // error detection: result == NULL
+    return result;
 }
 
-TblColRef * DataModelDesc::findColumn(std::string& column) {
-	TblColRef * result = NULL;
-	// std::string input = column;
+TblColRef* DataModelDesc::findColumn(std::string& column) {
+    TblColRef* result = NULL;
+    // std::string input = column;
 
-	boost::to_upper(column);
-	int cut = column.rfind('.');
-	if(cut == std::string::npos) {
-		// table not specified, try each table
-		for (std::set<TableRef *>::iterator it = allTableRefs.begin(); it != allTableRefs.end(); ++it) {
-			result = (*it)->getColumn(column);
-			if(result != NULL)
-				break;
-		}
-	} else { 
-		// table specified
-		std::string tableName = column.substr(0, cut);
-		std::string columnName = column.substr(cut + 1);
-		result = findColumn(tableName, columnName);
-	}
+    boost::to_upper(column);
+    int cut = column.rfind('.');
+    if (cut == std::string::npos) {
+        // table not specified, try each table
+        for (std::set<TableRef*>::iterator it = allTableRefs.begin(); it != allTableRefs.end(); ++it) {
+            result = (*it)->getColumn(column);
+            if (result != NULL)
+                break;
+        }
+    } else {
+        // table specified
+        std::string tableName = column.substr(0, cut);
+        std::string columnName = column.substr(cut + 1);
+        result = findColumn(tableName, columnName);
+    }
 
-	return result;
+    return result;
 }
 
 // void DataModelDesc::init(TableDesc * rootTableDesc) {

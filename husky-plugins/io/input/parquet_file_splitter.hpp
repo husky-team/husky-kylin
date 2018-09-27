@@ -26,50 +26,50 @@ namespace husky {
 namespace io {
 
 class PARQUETFileSplitter final : public FileSplitterBase {
- public:
-  PARQUETFileSplitter();
-  virtual ~PARQUETFileSplitter();
+   public:
+    PARQUETFileSplitter();
+    virtual ~PARQUETFileSplitter();
 
-  // intialize the url of the PARQUET file
-  // @param url starts with hdfs:// or nfs://
-  virtual void load(std::string url);
+    // intialize the url of the PARQUET file
+    // @param url starts with hdfs:// or nfs://
+    virtual void load(std::string url);
 
-  // ask master where to read from
-  // @param is_next is false if need to ask master for a new block (same or
-  // different files are possible)
-  // ---------------is ture if can directly read the next block using the
-  // current file
-  boost::string_ref fetch_block(bool is_next = false) override;
+    // ask master where to read from
+    // @param is_next is false if need to ask master for a new block (same or
+    // different files are possible)
+    // ---------------is ture if can directly read the next block using the
+    // current file
+    boost::string_ref fetch_block(bool is_next = false) override;
 
-  int read_block(const std::string& fn) override {}
+    int read_block(const std::string& fn) override {}
 
-  // get the starting position of splitter
-  // just to keep consistent with LineInputFormat
-  virtual size_t get_offset() { return offset_; }
+    // get the starting position of splitter
+    // just to keep consistent with LineInputFormat
+    virtual size_t get_offset() { return offset_; }
 
- protected:
-  void read_by_row(std::string fn);
+   protected:
+    void read_by_row(std::string fn);
 
-  // url may be a directory or a file
-  std::string url_;
+    // url may be a directory or a file
+    std::string url_;
 
-  // row_batch_size lines of record
-  std::string buffer_;
+    // row_batch_size lines of record
+    std::string buffer_;
 
-  // starting position of reading
-  int offset_;
+    // starting position of reading
+    int offset_;
 
-  // block_size of one fetch_block operation
-  // static size_t row_batch_size;
+    // block_size of one fetch_block operation
+    // static size_t row_batch_size;
 
-  // protocol can be hdfs or nfs
-  std::string protocol_;
+    // protocol can be hdfs or nfs
+    std::string protocol_;
 
-  // current filename
-  std::string cur_fn_;
+    // current filename
+    std::string cur_fn_;
 
-  // PARQUET reader to help to read PARQUET files
-  std::unique_ptr<parquet::ParquetFileReader> reader_;
+    // PARQUET reader to help to read PARQUET files
+    std::unique_ptr<parquet::ParquetFileReader> reader_;
 };
 
 }  // namespace husky
