@@ -1,6 +1,7 @@
 # Husky-Kylin
 Implement cubing algorithm in apache kylin using husky
 
+[![Build Status](https://travis-ci.org/husky-team/husky-kylin.svg?branch=master)](https://travis-ci.org/husky-team/husky-kylin)
 
 Dependencies
 -------------
