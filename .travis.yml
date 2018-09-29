@@ -52,6 +52,7 @@ script:
   - cd release
   - cmake .. -DCMAKE_BUILD_TYPE=release
   # Target list to check if succeed to compile.
+  - travis_wait 30 make -j4 parquet_ep orc_ep
   - make -j4 HuskyMaster WordCountORC WordCountPARQUET UnitTest
   # Run unit test.
   - ./UnitTest --gtest_shuffle  # To check if the order causes some time-out failures.
