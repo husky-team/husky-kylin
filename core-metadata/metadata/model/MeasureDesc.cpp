@@ -1,4 +1,4 @@
-#include "kylin/measureDesc.hpp"
+#include "MeasureDesc.hpp"
 
 MeasureDesc::MeasureDesc(string name, FunctionDesc* function) {
     // string cubeDescJsonPath = "cube_desc.json"; // should be in hdfs

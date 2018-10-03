@@ -14,8 +14,8 @@
 
 using json = nlohmann::json;
 
-DataModelDesc::DataModelDesc() {
-    std::string modelJsonPath = "model.json";  // should be in hdfs
+DataModelDesc::DataModelDesc(const std::string& modelJsonPath, const std::string& tableJsonPath) {
+    // std::string modelJsonPath = "model.json"; // should be in hdfs
     std::ifstream ifs(modelJsonPath);
     json j = json::parse(ifs);
 
@@ -24,7 +24,7 @@ DataModelDesc::DataModelDesc() {
     rootFactTable = j["fact_table"].get<std::string>();
 
     // init rootFactTableRef
-    TableDesc* rootFactTableDesc = new TableDesc();
+    TableDesc* rootFactTableDesc = new TableDesc(tableJsonPath);
     std::string rootFactTableName = rootFactTableDesc->getName();
     rootFactTableRef = new TableRef(this, rootFactTableName, rootFactTableDesc);
     addTableName(rootFactTableName, rootFactTableRef);
@@ -46,7 +46,8 @@ DataModelDesc::DataModelDesc() {
     // init metrics
     json j_metrics = j["metrics"];
     for (json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
-        metrics.push_back((*it).get<std::string>());
+        std::string metric_name = (*it).get<std::string>();
+        metrics.push_back(findColumn(metric_name)->getIdentity());
     }
 }
 

@@ -4,7 +4,12 @@
 #include <set>
 #include <utility>
 
-#include "kylin/cubeDesc.hpp"
+#include <list>
+#include <map>
+#include <set>
+#include <string>
+
+#include "core-cube/model/CubeDesc.hpp"
 
 class CuboidScheduler {
    public:
@@ -16,6 +21,8 @@ class CuboidScheduler {
     bool isValid(long requestCuboid);
     long findBestMatchCuboid(long cuboid);
     long findBestMatchCuboid1(long cuboid);
+
+   protected:
     std::pair<std::set<long>, std::map<long, std::list<long>>> buildTreeBottomUp();
 
    private:

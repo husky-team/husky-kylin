@@ -1,4 +1,4 @@
-#include "kylin/cuboidScheduler.hpp"
+#include "core-cube/cuboid/CuboidScheduler.hpp"
 
 CuboidScheduler::CuboidScheduler(CubeDesc* cubeDesc) {
     this->cubeDesc = cubeDesc;
@@ -86,7 +86,7 @@ long CuboidScheduler::getOnTreeParent(long child) {
         return -1;
     }
     // return min(candidates, Cuboid.cuboidSelectComparator);
-    return candidates;
+    return *candidates.begin();
 }
 
 std::set<long> CuboidScheduler::getOnTreeParents(long child) {
@@ -99,4 +99,31 @@ std::set<long> CuboidScheduler::getOnTreeParents(long child) {
     }
 
     return getOnTreeParents(child, aggrs);
+}
+
+std::pair<std::set<long>, std::map<long, std::list<long>>> CuboidScheduler::buildTreeBottomUp() {
+    /**
+* Collect cuboid from bottom up, considering all factor including black list
+* Build tree steps:
+* 1. Build tree from bottom up considering dim capping
+* 2. Kick out blacked-out cuboids from the tree
+* 3. Make sure all the cuboids have proper "parent", if not add it to the tree.
+*    Direct parent is not necessary, can jump *forward* steps to find in-direct parent.
+*    For example, forward = 1, grandparent can also be the parent. Only if both parent
+*    and grandparent are missing, add grandparent to the tree.
+* @return Cuboid collection
+*/
+}
+
+long CuboidScheduler::getParentOnPromise(long child, std::set<long> coll, int forward) {
+    long parent = getOnTreeParent(child);
+    if (parent < 0) {
+        return -1;
+    }
+
+    if (coll.find(parent) != coll.end() || forward == 0) {
+        return parent;
+    }
+
+    return getParentOnPromise(parent, coll, forward - 1);
 }
