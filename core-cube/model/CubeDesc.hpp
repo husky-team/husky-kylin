@@ -3,10 +3,6 @@
 
 #include <list>
 #include <set>
-#include <string>
-#include <string>
-#include <utility>
-#include <vector>
 
 #include "CuboidScheduler.hpp"
 #include "DataModelDesc.hpp"
@@ -16,7 +12,7 @@ using json = nlohmann::json;
 
 class CubeDesc {
    public:
-    CubeDesc();
+    CubeDesc(const std::string& cubeDescJsonPath);
     ~CubeDesc();
     std::string getName();
     void setName(std::string name);

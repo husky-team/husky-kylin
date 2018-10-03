@@ -1,7 +1,13 @@
 #include "CubeDesc.hpp"
 
-CubeDesc::CubeDesc() {
-    string cubeDescJsonPath = "cube_desc.json";  // should be in hdfs
+#include "core-cube/cuboid/Cuboid.hpp"
+#include "core-cube/cuboid/CuboidScheduler.hpp"
+#include "core-metadata/metadata/model/DataModelDesc.hpp"
+#include "core-metadata/metadata/model/FunctionDesc.hpp"
+#include "core-metadata/metadata/model/MeasureDesc.hpp"
+#include "core-metadata/metadata/model/ParameterDesc.hpp"
+
+CubeDesc::CubeDesc(const std::string& cubeDescJsonPath, ) {
     std::ifstream ifs(cubeDescJsonPath);
     json j = json::parse(ifs);
 

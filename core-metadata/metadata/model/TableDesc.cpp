@@ -3,10 +3,10 @@
 
 #include <fstream>
 
-TableDesc::TableDesc() {
-    std::string tableJsonPath = "table.json";  // should be in hdfs
-    std::ifstream ifs(tableJsonPath);
-    json j = json::parse(ifs);
+TableDesc::TableDesc(const std::string & tableJsonPath) {
+	// std::string tableJsonPath = "table.json"; // should be in hdfs
+	std::ifstream ifs(tableJsonPath); 
+	json j = json::parse(ifs);
 
     // for now, only support a fact table
     name = j["name"].get<std::string>();
