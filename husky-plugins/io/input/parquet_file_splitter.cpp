@@ -44,9 +44,10 @@ PARQUETFileSplitter::~PARQUETFileSplitter() {}
 // TODO:
 // 1. add PARQUETReaderOptions
 // 2. readHdfsFile(url)
-void PARQUETFileSplitter::load(std::string url) {
+void PARQUETFileSplitter::load(std::string url, std::list<int> columns) {
     cur_fn_ = "";
     url_ = url;
+    columns_ = columns;
     protocol_ = "nfs";
 }
 
@@ -80,9 +81,20 @@ void PARQUETFileSplitter::read_by_row(std::string fn) {
             parquet::ParquetFilePrinter printer(reader_.get());
             const parquet::FileMetaData* file_metadata = reader_->metadata().get();
             auto group_reader = reader_->RowGroup(offset_);
+            if (columns_.size() == 0) {
+                for (int i = 0; i < file_metadata->num_columns(); i++) {
+                    columns_.push_back(i);
+                }
+            } else {
+                for (auto i : columns_) {
+                    if (i < 0 || i >= file_metadata->num_columns()) {
+                        throw ParquetException("Selected column is out of range");           
+                    }         
+                }       
+            }
             // Create readers for selected columns and print contents
-            std::vector<std::shared_ptr<parquet::Scanner>> scanners(file_metadata->num_columns(), nullptr);
-            for (int i = 0; i < file_metadata->num_columns(); i++) {
+            std::vector<std::shared_ptr<parquet::Scanner>> scanners(columns_.size(), nullptr);
+            for (auto i : columns_) {
                 std::shared_ptr<parquet::ColumnReader> col_reader = group_reader->Column(i);
                 // This is OK in this method as long as the RowGroupReader does not get
                 // deleted

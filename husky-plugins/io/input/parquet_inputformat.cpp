@@ -35,7 +35,7 @@ PARQUETInputFormat::PARQUETInputFormat() { is_setup_ = PARQUETInputFormatSetUp::
 
 bool PARQUETInputFormat::is_setup() const { return !(is_setup_ ^ PARQUETInputFormatSetUp::AllSetUp); }
 
-void PARQUETInputFormat::set_input(const std::string& url) {
+void PARQUETInputFormat::set_input(const std::string& url, std::list<int> columns) {
     if (!url_.empty() && url_ == url)
         // Setting with a same url last time will do nothing.
         return;
@@ -43,7 +43,7 @@ void PARQUETInputFormat::set_input(const std::string& url) {
     int prefix = url_.find("://");
     ASSERT_MSG(prefix != std::string::npos, ("Cannot analyze protocol from " + url_).c_str());
     std::string protocol = url_.substr(0, prefix);
-    splitter_.load(url_.substr(prefix + 3));
+    splitter_.load(url_.substr(prefix + 3), columns);
     is_setup_ |= PARQUETInputFormatSetUp::InputSetUp;
 }
 

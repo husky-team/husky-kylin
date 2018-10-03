@@ -16,6 +16,7 @@
 #pragma once
 
 #include <string>
+#include <list>
 
 #include "boost/utility/string_ref.hpp"
 #include "parquet/file_reader.h"
@@ -32,7 +33,7 @@ class PARQUETFileSplitter final : public FileSplitterBase {
 
     // intialize the url of the PARQUET file
     // @param url starts with hdfs:// or nfs://
-    virtual void load(std::string url);
+    virtual void load(std::string url, std::list<int> columns);
 
     // ask master where to read from
     // @param is_next is false if need to ask master for a new block (same or
@@ -52,6 +53,9 @@ class PARQUETFileSplitter final : public FileSplitterBase {
 
     // url may be a directory or a file
     std::string url_;
+
+    // selected columns to read
+    std::list<int> columns_;
 
     // row_batch_size lines of record
     std::string buffer_;
