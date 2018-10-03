@@ -17,6 +17,7 @@
 #include <cassert>
 #include <fstream>
 #include <string>
+#include <list>
 
 #include "boost/utility/string_ref.hpp"
 
@@ -34,7 +35,7 @@ class PARQUETInputFormat : public InputFormatBase {
     PARQUETInputFormat();
     virtual ~PARQUETInputFormat() = default;
 
-    virtual void set_input(const std::string& url);
+    virtual void set_input(const std::string& url, std::list<int> columns);
     virtual bool next(boost::string_ref& ref);
     virtual bool is_setup() const;
 
