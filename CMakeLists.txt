@@ -19,6 +19,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -DHUSKY_DEBUG_MODE")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -DHUSKY_DEBUG_MODE")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -w")
+endif()
+
 ### Third-party
 # Submodule
 add_subdirectory(husky)
@@ -28,9 +34,15 @@ set(EXTERNAL_DEPENDENCIES husky)
 # Dependencies
 include(dep)
 
+include_directories(src)
+
 ### Directories
-add_subdirectory(core-cube)
-add_subdirectory(core-metadata)
-add_subdirectory(test)
+# Sources
+add_subdirectory(src/core-cube)
+add_subdirectory(src/core-metadata)
+add_subdirectory(src/husky-plugins)
+add_subdirectory(src/utils)
+
+# Examples & Tests
 add_subdirectory(examples)
-add_subdirectory(husky-plugins)
+add_subdirectory(test)
