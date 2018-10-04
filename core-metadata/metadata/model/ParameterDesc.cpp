@@ -2,15 +2,13 @@
 
 #include "FunctionDesc.hpp"
 
-ParameterDesc::ParameterDesc(const std::string & type, const std::string & value): type(type), value(value) {}
+ParameterDesc::ParameterDesc(const std::string& type, const std::string& value) : type(type), value(value) {}
 
 ParameterDesc::~ParameterDesc() {}
 
 std::string ParameterDesc::getType() { return type; }
 
-void ParameterDesc::setType(const std::string & type) {
-	this->type = type;
-}
+void ParameterDesc::setType(const std::string& type) { this->type = type; }
 
 std::string ParameterDesc::getValue() { return value; }
 
