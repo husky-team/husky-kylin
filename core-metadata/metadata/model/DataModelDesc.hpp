@@ -16,21 +16,20 @@ class TableRef;
 class TblColRef;
 class ModelDimensionDesc;
 
-class DataModelDesc
-{
-public:
-	DataModelDesc(const std::string & modelJsonPath, const std::string & tableJsonPath);
-	~DataModelDesc();
-	std::string getName();
-	// std::string getOwner();
-	//void setOwner(const std::string& owner);
-	TableRef * getRootFactTableRef();
-	TableRef * findTable(std::string& table);
-	TblColRef * findColumn(std::string& table, std::string& column);
-	TblColRef * findColumn(std::string& column);
-	
-private:
-	/*For now, suppose only one fact table, no lookup tables*/
+class DataModelDesc {
+   public:
+    DataModelDesc(const std::string& modelJsonPath, const std::string& tableJsonPath);
+    ~DataModelDesc();
+    std::string getName();
+    // std::string getOwner();
+    // void setOwner(const std::string& owner);
+    TableRef* getRootFactTableRef();
+    TableRef* findTable(std::string& table);
+    TblColRef* findColumn(std::string& table, std::string& column);
+    TblColRef* findColumn(std::string& column);
+
+   private:
+    /*For now, suppose only one fact table, no lookup tables*/
 
     // from json
     std::string name;
