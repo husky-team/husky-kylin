@@ -1,6 +1,7 @@
 include_directories(${PROJECT_SOURCE_DIR} ${HUSKY_EXTERNAL_INCLUDE})
 
-set(husky-kylin core-metadata husky)
+set(husky-kylin-core core-cube core-metadata)
+set(husky-kylin ${husky-kylin-core} husky)
 
 ### Reuse gtest in Husky
 
@@ -17,8 +18,15 @@ target_link_libraries(UnitTest ${EXTERNAL_LIB})
 target_link_libraries(UnitTest ${HUSKY_EXTERNAL_LIB})
 target_link_libraries(UnitTest ${GTEST_LIBRARY})
 target_link_libraries(UnitTest ${GMOCK_LIBRARY})
+file(COPY resources DESTINATION ${PROJECT_BINARY_DIR})
 
 ### Functional Test
+
+# TestModel
+add_executable(TestModel test_model.cpp)
+target_link_libraries(TestModel ${husky-kylin-core})
+target_link_libraries(TestModel ${EXTERNAL_LIB})
+target_link_libraries(TestModel ${HUSKY_EXTERNAL_LIB})
 
 # TestXXX Template
 # add_executable(TestXXX test-xxx.cpp)

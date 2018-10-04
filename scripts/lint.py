@@ -12,12 +12,12 @@ CPPLINT_FILTERS = ['-whitespace/indent', '-runtime/references', '+build/include_
 CPPLINT_LINE_LENGTH = 120
 
 default_dirs = [
-    'core-cube',
-    'core-metadata',
+    'src/core-cube',
+    'src/core-metadata',
+    'src/husky-plugins',
+    'src/utils',
     'examples',
-    'husky-plugins',
     'test',
-    'utils',
 ]
 ignored_dirs = [
 ]
@@ -85,7 +85,7 @@ def main(argv=None):
     if (len(CPPLINT_FILTERS) > 0):
         cpplint_cmd.append('--filter={}'.format(','.join(CPPLINT_FILTERS)))
 
-    run_cmd = ' '.join(cpplint_cmd) + ' ' + ' '.join(files)
+    run_cmd = ' '.join(cpplint_cmd) + ' ' + ' '.join(files) + " 2>&1"
     os.system(run_cmd)
 
 

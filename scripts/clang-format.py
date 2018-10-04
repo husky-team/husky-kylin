@@ -8,12 +8,12 @@ import sys
 
 cpp_suffix = '*.[cht]pp'
 default_dirs = [
-    'core-cube',
-    'core-metadata',
+    'src/core-cube',
+    'src/core-metadata',
+    'src/husky-plugins',
+    'src/utils',
     'examples',
-    'husky-plugins',
     'test',
-    'utils',
 ]
 ignored_dirs = [
 ]
