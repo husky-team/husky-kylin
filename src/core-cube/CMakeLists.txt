@@ -19,6 +19,7 @@ file(GLOB core-cube-src
   cube_instance.cpp
   cuboid/cuboid.cpp
   cuboid/cuboid_scheduler.cpp
+  cuboid/tree_cuboid_scheduler.cpp
   model/cube_desc.cpp
   model/dimension_desc.cpp
   model/row_key_col_desc.cpp
