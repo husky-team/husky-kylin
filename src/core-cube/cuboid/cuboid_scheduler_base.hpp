@@ -19,15 +19,15 @@
 #include <string>
 #include <vector>
 
-// #include "core-cube/model/cube_desc.hpp"
+#include "core-cube/model/cube_desc.hpp"
 
 namespace husky {
 namespace cube {
 
 class CuboidSchedulerBase {
    public:
-    // CuboidScheduler(CubeDesc * cube_desc) { cube_desc_ = cube_desc}
-    CuboidSchedulerBase() {}  // for test
+    CuboidScheduler(std::shared_ptr<CubeDesc> cube_desc) { cube_desc_ = cube_desc}
+    // CuboidSchedulerBase() {}  // for test
     ~CuboidSchedulerBase() {}
 
     /** Returns all cuboids on the tree. */
@@ -44,11 +44,11 @@ class CuboidSchedulerBase {
 
     // ============================================================================
 
-    // inline get_base_cuboid_id() { return Cuboid.getBaseCuboidId(cube_desc_)}
+    inline get_base_cuboid_id() { return Cuboid.get_base_cuboid_id(cube_desc_)}
 
-    inline uint64_t get_base_cuboid_id() { return 31; }  // hard code; for test only
+    // inline uint64_t get_base_cuboid_id() { return 31; }  // hard code; for test only
 
-    // inline std::shared_ptr<CubeDesc> get_cube_desc() const { return cube_desc_;}
+    inline std::shared_ptr<CubeDesc> get_cube_desc() const { return cube_desc_;}
 
     /** Checks whether a cuboid is valid or not. */
     inline virtual bool is_valid(uint64_t request_cuboid) const {
@@ -60,18 +60,18 @@ class CuboidSchedulerBase {
  * Get cuboids by layer. It's built from pre-expanding tree.
  * return layered cuboids
  */
-    // const std::vector<std::vector<uint64_t> > get_cuboids_by_layer();
+    const std::vector<std::vector<uint64_t> > get_cuboids_by_layer();
 
     /**
  * Get cuboid level count except base cuboid
  */
-    // inline const int get_build_level() const { return get_cuboids_by_layer().size() - 1; }
+    inline const int get_build_level() const { return get_cuboids_by_layer().size() - 1; }
 
-    // protected:
-    //  std::shared_ptr<CubeDesc> cube_desc_;
+    protected:
+     std::shared_ptr<CubeDesc> cube_desc_;
 
-    // private:
-    //  std::vector<std::vector<uint64_t> > cuboids_by_layer_;
+    private:
+     std::vector<std::vector<uint64_t> > cuboids_by_layer_;
 };
 
 }  // namespace cube
