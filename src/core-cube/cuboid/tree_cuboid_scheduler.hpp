@@ -17,16 +17,18 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
-// #include "core-cube/model/cube_desc.hpp"
-// #include "core-cube/model/cuboid.hpp"
+#include "core-cube/cuboid/cuboid.hpp"
 #include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 
 namespace husky {
 namespace cube {
+
+class CubeDesc;
 
 /** Do not consider aggregation group, simple cuboid scheduler */
 class TreeCuboidScheduler : public CuboidSchedulerBase {
@@ -78,18 +80,19 @@ class TreeCuboidScheduler : public CuboidSchedulerBase {
         std::map<uint64_t, TreeNode*> index_;
     };
 
-    // TreeCuboidScheduler(CubeDesc * cube_desc, std::vector<uint64_t> & all_cuboid_ids):CuboidScheduler(cube_desc) {}
-    explicit TreeCuboidScheduler(std::vector<uint64_t>& all_cuboid_ids)
-        : cuboid_tree_(CuboidTree::create_from_cuboids(all_cuboid_ids)) {}
-    TreeCuboidScheduler() : cuboid_tree_() {}
+    explicit TreeCuboidScheduler(std::shared_ptr<CubeDesc> cube_desc, std::vector<uint64_t> & all_cuboid_ids)
+            :CuboidSchedulerBase(cube_desc), cuboid_tree_(CuboidTree::create_from_cuboids(all_cuboid_ids)){}
+    // explicit TreeCuboidScheduler(std::vector<uint64_t>& all_cuboid_ids)
+        // : cuboid_tree_(CuboidTree::create_from_cuboids(all_cuboid_ids)) {}
+    TreeCuboidScheduler(std::shared_ptr<CubeDesc> cube_desc):CuboidSchedulerBase(cube_desc){}
     ~TreeCuboidScheduler() {}
 
     inline std::set<uint64_t> get_all_cuboid_ids() const override { return cuboid_tree_.get_all_cuboid_ids(); }
-    // inline int get_cuboid_count() const { return
-    // cuboid_tree_.get_cuboid_count(Cuboid.get_base_cuboid_id(cube_desc_))}
-    inline int get_cuboid_count() const override {
-        return cuboid_tree_.get_cuboid_count(31);
-    }  // hard code - [base cuboids id:] 11111(binary)
+    inline int get_cuboid_count() const { return
+    cuboid_tree_.get_cuboid_count(Cuboid::get_base_cuboid_id(cube_desc_)); }
+    // inline int get_cuboid_count() const override {
+    //     return cuboid_tree_.get_cuboid_count(31);
+    // }  // hard code - [base cuboids id:                                                                                           ] 11111(binary)
     inline std::vector<uint64_t> get_spanning_cuboid(uint64_t cuboid_id) const override {
         return cuboid_tree_.get_spanning_cuboid(cuboid_id);
     }

@@ -28,16 +28,18 @@
 #include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-metadata/metadata/model/measure_desc.hpp"
 #include "core-metadata/metadata/model/parameter_desc.hpp"
+#include "core-cube/cuboid/cuboid_scheduler_base.hpp"
+#include "core-cube/cuboid/tree_cuboid_scheduler.hpp"
 
 namespace husky {
 namespace cube {
 
 using json = nlohmann::json;
 
-class CubeDesc {
+class CubeDesc:public std::enable_shared_from_this<CubeDesc> {
    public:
     explicit CubeDesc(const std::string& cubeDescJsonPath);
-    ~CubeDesc() {}
+    ~CubeDesc() { delete cuboid_scheduler_; }
 
     void init() {}  // Init cube desc
 
@@ -48,6 +50,11 @@ class CubeDesc {
     inline DataModelDesc& get_model() { return *model_; }
     inline std::shared_ptr<RowKeyDesc> get_row_key() { return row_key_; }
     inline std::list<AggregationGroup*> get_aggregation_groups() { return std::list<AggregationGroup*>(); }
+    inline CuboidSchedulerBase * get_initial_cuboid_scheduler() {
+        if(cuboid_scheduler_ == NULL)
+            cuboid_scheduler_ = new TreeCuboidScheduler(shared_from_this());
+        return cuboid_scheduler_;
+    } 
 
     /* Setters */
     inline void set_name(const std::string& name) { name_ = name; }
@@ -63,6 +70,7 @@ class CubeDesc {
     std::shared_ptr<RowKeyDesc> row_key_;
     std::vector<DimensionDesc> dimensions_;
     std::vector<MeasureDesc> measures_;
+    CuboidSchedulerBase * cuboid_scheduler_;
     int parent_forward_ = 3;
     uint64_t partition_date_start_ = 0L;
     uint64_t partition_date_end_ = 3153600000000L;

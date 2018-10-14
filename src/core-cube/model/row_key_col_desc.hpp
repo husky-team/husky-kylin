@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "core-metadata/dimension/dimension_dim_enc.hpp"
+#include "core-metadata/dimension/dimension_encoding.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
 
 namespace husky {

@@ -14,32 +14,46 @@
 
 #pragma once
 
-#include <list>
 #include <memory>
 #include <vector>
+#include <set>
 
-#include "core-cube/cuboid/cuboid_scheduler.hpp"
-#include "core-cube/model/cube_desc.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
 #include "utils/utils.hpp"
 
 namespace husky {
 namespace cube {
 
+class CuboidSchedulerBase;
+class CubeDesc;
+
 class Cuboid {
    public:
-    Cuboid(const std::shared_ptr<CubeDesc>& cube_desc, uint64_t original_id, uint64_t valid_id);
+    Cuboid(const std::shared_ptr<CubeDesc> & cube_desc, uint64_t original_id, uint64_t valid_id);
     ~Cuboid() {}
 
-   protected:
-    std::list<TblColRef*> translated_id_to_columns(uint64_t cuboid_id);
+    static Cuboid * find_cuboid(CuboidSchedulerBase * cuboid_scheduler, const std::set<TblColRef *> & dimensions);
+    static Cuboid * find_by_bytes_id(CuboidSchedulerBase * cuboid_scheduler, const std::vector<unsigned char> & cuboid_id);
+    static Cuboid * find_by_long_id(CuboidSchedulerBase * cuboid_scheduler, uint64_t cuboid_id);
+    static uint64_t to_cuboid_id(const std::shared_ptr<CubeDesc> & cube_desc, const std::set<TblColRef *> & dimensions);
+    static uint64_t get_base_cuboid_id(const std::shared_ptr<CubeDesc> & cube);
+    static Cuboid * get_base_cuboid(const std::shared_ptr<CubeDesc> & cube);
+
+    inline std::shared_ptr<CubeDesc> get_cube_desc() const { return cube_desc_;}
+    inline std::vector<TblColRef* > get_columns() const { return dimension_columns_; }
+    inline uint64_t get_id() const { return id_; }
+    inline std::vector<unsigned char> get_bytes() const { return id_bytes_; }
+    inline uint64_t get_input_id() const { return input_id_; }
+
+   protected: 
+    std::vector<TblColRef*> translated_id_to_columns(uint64_t cuboid_id);
 
    private:
     std::shared_ptr<CubeDesc> cube_desc_;
     uint64_t input_id_;
     uint64_t id_;
     std::vector<unsigned char> id_bytes_;
-    std::list<TblColRef*> dimension_columns_;
+    std::vector<TblColRef*> dimension_columns_;
 };
 
 }  // namespace cube

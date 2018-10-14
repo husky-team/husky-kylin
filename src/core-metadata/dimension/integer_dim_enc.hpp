@@ -17,13 +17,13 @@
 #include <string>
 #include <vector>
 
-#include "core-metadata/dimension/dimension_dim_enc.hpp"
+#include "core-metadata/dimension/dimension_encoding.hpp"
 #include "utils/utils.hpp"
 
 namespace husky {
 namespace cube {
 
-class IntegerDimEnc : public DimensionDimEnc {
+class IntegerDimEnc : public DimensionEncoding {
    public:
     explicit IntegerDimEnc(int len);
     ~IntegerDimEnc();

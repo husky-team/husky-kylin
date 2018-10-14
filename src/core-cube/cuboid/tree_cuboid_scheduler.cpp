@@ -21,7 +21,7 @@
 
 #include "glog/logging.h"
 
-#include "core-cube/cuboid/cuboid_scheduler_base.hpp"
+#include "core-cube/model/cube_desc.hpp"
 
 namespace husky {
 namespace cube {

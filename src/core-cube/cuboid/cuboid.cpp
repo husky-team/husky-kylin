@@ -14,13 +14,15 @@
 
 #include "core-cube/cuboid/cuboid.hpp"
 
-#include <list>
 #include <memory>
 #include <vector>
 
-#include "core-cube/cuboid/cuboid_scheduler.hpp"
+#include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 #include "core-cube/model/cube_desc.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
+#include "core-cube/model/row_key_col_desc.hpp"
+#include "core-cube/model/row_key_desc.hpp"
+
 #include "utils/utils.hpp"
 
 namespace husky {
@@ -32,9 +34,50 @@ Cuboid::Cuboid(const std::shared_ptr<CubeDesc>& cube_desc, uint64_t original_id,
     dimension_columns_ = translated_id_to_columns(id_);
 }
 
-std::list<TblColRef*> Cuboid::translated_id_to_columns(uint64_t cuboid_id) {
+Cuboid * Cuboid::find_cuboid(CuboidSchedulerBase * cuboid_scheduler, const std::set<TblColRef *> & dimensions) {
+  uint64_t cuboid_id = to_cuboid_id(cuboid_scheduler->get_cube_desc(), dimensions);
+  return Cuboid::find_by_long_id(cuboid_scheduler, cuboid_id);
+}
+
+Cuboid * Cuboid::find_by_bytes_id(CuboidSchedulerBase * cuboid_scheduler, const std::vector<unsigned char> & cuboid_id) {
+  return find_by_long_id(cuboid_scheduler, utils::bytes_to_long(cuboid_id));
+}
+
+Cuboid * Cuboid::find_by_long_id(CuboidSchedulerBase * cuboid_scheduler, uint64_t cuboid_id) {
+  uint64_t valid_cuboid_id = cuboid_scheduler->find_best_match_cuboid(cuboid_id);
+  Cuboid * cuboid = new Cuboid(cuboid_scheduler->get_cube_desc(), cuboid_id, valid_cuboid_id);
+  return cuboid;
+}
+
+uint64_t Cuboid::get_base_cuboid_id(const std::shared_ptr<CubeDesc> & cube) {
+  return cube->get_row_key()->get_full_mask();
+}
+
+Cuboid * Cuboid::get_base_cuboid(const std::shared_ptr<CubeDesc> & cube) {
+  return find_by_long_id(cube->get_initial_cuboid_scheduler(), get_base_cuboid_id(cube));
+}
+
+std::vector<TblColRef*> Cuboid::translated_id_to_columns(uint64_t cuboid_id) {
     // TODO(tatiana)
-    return std::list<TblColRef*>();
+    std::vector<TblColRef*> dimensions;
+    std::vector<RowKeyColDesc *> all_columns = cube_desc_->get_row_key()->get_row_key_columns();
+    for(int i = 0; i < all_columns.size(); i++) {
+    	uint64_t bitmask = 1L << all_columns[i]->get_bit_index();
+    	if((cuboid_id & bitmask) != 0) {
+    		TblColRef * col_ref = all_columns[i]->get_col_ref();
+    		dimensions.push_back(col_ref);
+    	}
+    }
+    return dimensions;
+}
+
+uint64_t Cuboid::to_cuboid_id(const std::shared_ptr<CubeDesc> & cube_desc, const std::set<TblColRef *> & dimensions) {
+	uint64_t cuboid_id = 0;
+	for(auto const & column : dimensions) {
+		int index = cube_desc->get_row_key()->get_column_bit_index(column);
+		cuboid_id |= 1L << index;
+	}
+	return cuboid_id;
 }
 
 }  // namespace cube
