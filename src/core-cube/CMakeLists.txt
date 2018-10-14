@@ -19,10 +19,12 @@ file(GLOB core-cube-src
   cube_instance.cpp
   cuboid/cuboid.cpp
   cuboid/cuboid_scheduler.cpp
+  cuboid/cuboid_scheduler_base.cpp
   cuboid/tree_cuboid_scheduler.cpp
   model/cube_desc.cpp
   model/dimension_desc.cpp
   model/row_key_col_desc.cpp
+  kv/row_key_encoder.cpp
   )
 
 husky_cache_variable(core-cube-src ${core-cube-src})

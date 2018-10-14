@@ -32,7 +32,7 @@ void RowKeyColDesc::init(int index, const CubeDesc& cube_desc) {
     col_ref_ = cube_desc.get_model().find_column(column_);
     column_ = col_ref_->get_identity();
 
-    std::vector<std::string> encoding_params = DimensionDimEnc::parse_encoding_conf(encoding_);
+    std::vector<std::string> encoding_params = DimensionEncoding::parse_encoding_conf(encoding_);
     if (encoding_params.size() == 1) {
         // no args
         encoding_name_ = encoding_params[0];

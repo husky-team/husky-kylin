@@ -34,14 +34,14 @@ int bytes_to_int(const std::vector<unsigned char>& bytes) {
 }
 
 std::vector<unsigned char> long_to_bytes(uint64_t param_long) {
-    std::vector<unsigned char> array_of_bytes(4);
-    for (int i = 0; i < 4; ++i)
-        array_of_bytes[3 - i] = (int) ((param_long >> (i * 8)) & 0xFF);
+    std::vector<unsigned char> array_of_bytes(8);
+    for (int i = 0; i < 8; ++i)
+        array_of_bytes[7 - i] = (int) ((param_long >> (i * 8)) & 0xFF);
     return array_of_bytes;
 }
 
 uint64_t bytes_to_long(const std::vector<unsigned char>& bytes) {
-    return ((bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3]);
+    return ((bytes[0] << 56) + (bytes[1] << 48) + (bytes[2] << 40) + (bytes[3] << 32) + (bytes[4] << 24) + + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7]);
 }
 
 void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int size) {

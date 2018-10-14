@@ -22,7 +22,7 @@
 namespace husky {
 namespace cube {
 
-class DimensionDimEnc {
+class DimensionEncoding {
    public:
     // it's convention that all 0xff means NULL
     static const unsigned char kNULL = (unsigned char) 0xff;

@@ -19,14 +19,16 @@
 #include <string>
 #include <vector>
 
-#include "core-cube/model/cube_desc.hpp"
+#include "core-cube/cuboid/cuboid.hpp"
 
 namespace husky {
 namespace cube {
 
+class CubeDesc;
+
 class CuboidSchedulerBase {
    public:
-    CuboidScheduler(std::shared_ptr<CubeDesc> cube_desc) { cube_desc_ = cube_desc}
+    CuboidSchedulerBase(std::shared_ptr<CubeDesc> cube_desc) { cube_desc_ = cube_desc; }
     // CuboidSchedulerBase() {}  // for test
     ~CuboidSchedulerBase() {}
 
@@ -44,7 +46,7 @@ class CuboidSchedulerBase {
 
     // ============================================================================
 
-    inline get_base_cuboid_id() { return Cuboid.get_base_cuboid_id(cube_desc_)}
+    inline uint64_t get_base_cuboid_id() { return Cuboid::get_base_cuboid_id(cube_desc_); }
 
     // inline uint64_t get_base_cuboid_id() { return 31; }  // hard code; for test only
 
@@ -60,12 +62,12 @@ class CuboidSchedulerBase {
  * Get cuboids by layer. It's built from pre-expanding tree.
  * return layered cuboids
  */
-    const std::vector<std::vector<uint64_t> > get_cuboids_by_layer();
+    std::vector<std::vector<uint64_t> > get_cuboids_by_layer();
 
     /**
  * Get cuboid level count except base cuboid
  */
-    inline const int get_build_level() const { return get_cuboids_by_layer().size() - 1; }
+    inline int get_build_level() { return get_cuboids_by_layer().size() - 1; }
 
     protected:
      std::shared_ptr<CubeDesc> cube_desc_;
