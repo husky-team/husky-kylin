@@ -17,15 +17,18 @@
 #include <cinttypes>
 #include <vector>
 
+#include "glog/logging.h"
+
 namespace husky {
 namespace utils {
 
-/** Long in java is 64-bit, so we use uin64_t here */
+/** Long in java is 64-bit, so we use uint64_t here */
 
 std::vector<unsigned char> int_to_bytes(int param_int) {
     std::vector<unsigned char> array_of_bytes(4);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++) {
         array_of_bytes[3 - i] = (param_int >> (i * 8));
+    }
     return array_of_bytes;
 }
 
@@ -35,16 +38,20 @@ int bytes_to_int(const std::vector<unsigned char>& bytes) {
 
 std::vector<unsigned char> long_to_bytes(uint64_t param_long) {
     std::vector<unsigned char> array_of_bytes(8);
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 8; ++i) {
         array_of_bytes[7 - i] = (int) ((param_long >> (i * 8)) & 0xFF);
+    }
     return array_of_bytes;
 }
 
 uint64_t bytes_to_long(const std::vector<unsigned char>& bytes) {
-    return ((bytes[0] << 56) + (bytes[1] << 48) + (bytes[2] << 40) + (bytes[3] << 32) + (bytes[4] << 24) + + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7]);
+    return ((uint64_t(bytes[0]) << 56) + (uint64_t(bytes[1]) << 48) + (uint64_t(bytes[2]) << 40) +
+            (uint64_t(bytes[3]) << 32) + (bytes[4] << 24) + +(bytes[5] << 16) + (bytes[6] << 8) + bytes[7]);
 }
 
 void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int size) {
+    CHECK(offset > 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size() << ", offset = " << offset
+                                                       << ", size = " << size;
     for (int i = offset + size - 1; i >= offset; i--) {
         bytes[i] = (unsigned char) num;
         num >>= 8;
@@ -52,6 +59,8 @@ void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int
 }
 
 uint64_t read_long(const std::vector<unsigned char>& bytes, int offset, int size) {
+    CHECK(offset > 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size() << ", offset = " << offset
+                                                       << ", size = " << size;
     uint64_t integer;
     for (int i = offset, n = offset + size; i < n; i++) {
         integer <<= 8;

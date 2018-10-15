@@ -18,41 +18,43 @@
 namespace husky {
 namespace cube {
 
-RowKeyEncoder::RowKeyEncoder(const std::shared_ptr<CubeDesc> & cube_desc, Cuboid * cuboid): AbstractRowKeyEncoder(cube_desc, cuboid) {
-	for(auto const & column : cuboid->get_columns()) {
-		body_length_ += 4; // hard code! Should be different by dimension type (int, data, string, ...)
-	}
+RowKeyEncoder::RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, Cuboid* cuboid)
+    : AbstractRowKeyEncoder(cube_desc, cuboid) {
+    for (auto const& column : cuboid->get_columns()) {
+        body_length_ += 4;  // hard code! Should be different by dimension type (int, data, string, ...)
+    }
 }
 
-void RowKeyEncoder::encode(const std::vector<unsigned char> & body_bytes, std::vector<unsigned char> & output_buf) {
-	output_buf = body_bytes;
-	fill_header(output_buf);
+void RowKeyEncoder::encode(const std::vector<unsigned char>& body_bytes, std::vector<unsigned char>& output_buf) {
+    // TODO(tatiana): what is the expected size of output_buf? better to have offset to avoid inserting at start
+    output_buf = body_bytes;
+    fill_header(output_buf);
 }
 
-std::vector<unsigned char> RowKeyEncoder::encode(std::map<TblColRef *, std::string> & value_map) {
-	std::vector<TblColRef *> columns = cuboid_->get_columns();
-	std::vector<std::string> values;
-	for(auto const & column : columns) {
-		values.push_back(value_map.find(column)->second);
-	}
-	return encode(values);
+std::vector<unsigned char> RowKeyEncoder::encode(std::map<TblColRef*, std::string>& value_map) {
+    const std::vector<TblColRef*>& columns = cuboid_->get_columns();
+    std::vector<std::string> values;
+    for (auto const& column : columns) {
+        values.push_back(value_map.find(column)->second);
+    }
+    return encode(values);
 }
 
-std::vector<unsigned char> RowKeyEncoder::encode(std::vector<std::string> & values) {
-	std::vector<unsigned char> bytes;
-	int offset = get_header_length();
-	std::vector<TblColRef *> columns = cuboid_->get_columns();
+std::vector<unsigned char> RowKeyEncoder::encode(std::vector<std::string>& values) {
+    std::vector<unsigned char> bytes;
+    int offset = get_header_length();
+    const std::vector<TblColRef*>& columns = cuboid_->get_columns();
 
-	for(int i = 0; i < columns.size(); i++) {
-		TblColRef * column = columns[i];
-		// int colLength = colIO.getColumnLength(column); // hard code!
-		int col_length = 4;
-		fill_column_value(column, col_length, values[i], bytes, offset);
-		offset += col_length;
-	}
+    for (int i = 0; i < columns.size(); i++) {
+        TblColRef* column = columns[i];
+        // int colLength = colIO.getColumnLength(column); // hard code!
+        int col_length = 4;
+        fill_column_value(column, col_length, values[i], bytes, offset);
+        offset += col_length;
+    }
 
-	fill_header(bytes);
-	return bytes;
+    fill_header(bytes);
+    return bytes;
 }
 
 }  // namespace cube

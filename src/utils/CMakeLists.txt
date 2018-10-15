@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_directories(${PROJECT_SOURCE_DIR} ${EXTERNAL_INCLUDE} ${PROJECT_SOURCE_DIR}/husky)
+include_directories(${PROJECT_SOURCE_DIR} ${HUSKY_EXTERNAL_INCLUDE} ${EXTERNAL_INCLUDE} ${PROJECT_SOURCE_DIR}/husky)
 
 file(GLOB utils-src
   utils.cpp
@@ -20,3 +20,4 @@ file(GLOB utils-src
 
 husky_cache_variable(utils-src ${utils-src})
 add_library(husky-kylin-utils SHARED ${utils-src})
+target_link_libraries(husky-kylin-utils ${GLOG_LIBRARY})
