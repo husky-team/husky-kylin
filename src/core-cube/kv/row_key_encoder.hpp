@@ -14,57 +14,55 @@
 
 #pragma once
 
-#include "core-cube/kv/abstract_row_key_encoder.hpp"
 #include "core-cube/cuboid/cuboid.hpp"
+#include "core-cube/kv/abstract_row_key_encoder.hpp"
 #include "core-cube/kv/row_key_constants.hpp"
 #include "core-metadata/dimension/dimension_encoding.hpp"
 #include "core-metadata/dimension/integer_dim_enc.hpp"
 
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace husky {
 namespace cube {
 
-class RowKeyEncoder: public AbstractRowKeyEncoder
-{
-public:
-	RowKeyEncoder(const std::shared_ptr<CubeDesc> & cube_desc, Cuboid * cuboid);
-	~RowKeyEncoder() {}
-	inline int get_header_length() const {
-		return hearder_length_;
-	}
-	inline int get_bytes_length() const {
-		return get_header_length() + body_length_;
-	}
-	inline void fill_header(std::vector<unsigned char> & bytes) {
-		int offset = 0; // for shard id(future use)
-		std::vector<unsigned char> cuboid_id_bytes = cuboid_->get_bytes();
-		bytes.insert(bytes.begin(), cuboid_id_bytes.begin(), cuboid_id_bytes.begin() + RowKeyConstants::ROWKEY_CUBOIDID_LENGTH);
-	}
+class RowKeyEncoder : public AbstractRowKeyEncoder {
+   public:
+    RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, Cuboid* cuboid);
+    ~RowKeyEncoder() {}
 
-	/* override */
-	// inline std::vector<unsigned char> creat_buf() {
-	// 	std::vector<unsigned char> v;
-	// 	v.reserve(get_bytes_length());
-	// 	return v;
-	// }
-	void encode(const std::vector<unsigned char> & body_bytes, std::vector<unsigned char> & output_buf);
-	std::vector<unsigned char> encode(std::map<TblColRef *, std::string> & value_map);
-	std::vector<unsigned char> encode(std::vector<std::string> & values);
+    inline int get_header_length() const { return hearder_length_; }
+    inline int get_bytes_length() const { return get_header_length() + body_length_; }
+    inline void fill_header(std::vector<unsigned char>& bytes) {
+        int offset = 0;  // for shard id(future use)
+        std::vector<unsigned char> cuboid_id_bytes = cuboid_->get_bytes();
+        bytes.insert(bytes.begin(), cuboid_id_bytes.begin(),
+                     cuboid_id_bytes.begin() + RowKeyConstants::ROWKEY_CUBOIDID_LENGTH);
+    }
 
-private:
-	int body_length_ = 0;
-	// int uhc_off_set_ = -1; // it's a offset to the beginning of body (for shard id)
-	// int uhc_length_ = -1;
-	int hearder_length_;
+    /* override */
+    // inline std::vector<unsigned char> creat_buf() {
+    // 	std::vector<unsigned char> v;
+    // 	v.reserve(get_bytes_length());
+    // 	return v;
+    // }
+    void encode(const std::vector<unsigned char>& body_bytes, std::vector<unsigned char>& output_buf) override;
+    std::vector<unsigned char> encode(std::map<TblColRef*, std::string>& value_map) override;
+    std::vector<unsigned char> encode(std::vector<std::string>& values) override;
 
-	void fill_column_value(TblColRef * column, int column_len, std::string & value_str, std::vector<unsigned char> & output_value, int output_offset) {
-		DimensionEncoding *  dimEnc = new IntegerDimEnc(4); // hard code! Should get DimEnc by column.
-		dimEnc->encode(value_str, output_value, output_offset);
-		delete dimEnc;
-	}
+   private:
+    int body_length_ = 0;
+    // int uhc_off_set_ = -1; // it's a offset to the beginning of body (for shard id)
+    // int uhc_length_ = -1;
+    int hearder_length_;
+
+    void fill_column_value(TblColRef* column, int column_len, std::string& value_str,
+                           std::vector<unsigned char>& output_value, int output_offset) {
+        IntegerDimEnc integer_dim_enc(4);
+        DimensionEncoding* dim_enc = &integer_dim_enc;  // hard code! Should get DimEnc by column.
+        dim_enc->encode(value_str, output_value, output_offset);
+    }
 };
 
 }  // namespace cube

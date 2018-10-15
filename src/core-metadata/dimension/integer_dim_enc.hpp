@@ -26,7 +26,7 @@ namespace cube {
 class IntegerDimEnc : public DimensionEncoding {
    public:
     explicit IntegerDimEnc(int len);
-    ~IntegerDimEnc();
+    ~IntegerDimEnc() {}
     static const char ENCODING_NAME[];
 
     /** return the fixed length of encoded bytes */
