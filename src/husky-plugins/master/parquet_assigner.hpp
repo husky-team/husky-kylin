@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 
+#include "hdfs/hdfs.h"
 #include "parquet/file_reader.h"
 
 #include "master/master.hpp"
@@ -35,11 +36,14 @@ class PARQUETBlockAssigner {
     void master_setup_handler();
     void browse_local(const std::string& url);
     std::pair<std::string, size_t> answer(std::string& url);
+    std::pair<std::string, size_t> answer_hdfs(std::string& url);
     /// Return the number of workers who have finished reading the files in
     /// the given url
     int get_num_finished(std::string& url);
     /// Use this when all workers finish reading the files in url
     void finish_url(std::string& url);
+    void init_hdfs(const std::string& node, const std::string& port);
+    void browse_hdfs(const std::string& url);
 
    private:
     // int row_batch_size = 8*1024;
@@ -48,6 +52,9 @@ class PARQUETBlockAssigner {
     std::map<std::string, size_t> file_size_;
     std::map<std::string, int> finish_dict_;
     std::unique_ptr<parquet::ParquetFileReader> reader_;
+    std::string protocol_;
+    // handle of HDFS
+    hdfsFS fs_;
 };
 
 }  // namespace husky

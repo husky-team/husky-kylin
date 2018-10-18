@@ -23,7 +23,7 @@
 #include "parquet/column_scanner.h"
 #include "parquet/file_reader.h"
 #include "parquet/metadata.h"
-#include "parquet/printer.h"
+#include "parquet/properties.h"
 
 #include "base/log.hpp"
 #include "base/serialization.hpp"
@@ -31,6 +31,7 @@
 #include "core/coordinator.hpp"
 
 #include "husky-plugins/core/constants.hpp"
+#include "husky-plugins/io/input/parquet_hdfs_source.hpp"
 
 namespace husky {
 namespace io {
@@ -40,22 +41,33 @@ namespace io {
 
 PARQUETFileSplitter::PARQUETFileSplitter() { offset_ = 0; }
 
-PARQUETFileSplitter::~PARQUETFileSplitter() {}
+PARQUETFileSplitter::~PARQUETFileSplitter() {
+    if (protocol_ == "hdfs")
+        hdfsDisconnect(fs_);
+}
 // initialize reader with the file url
 // TODO(sy):
 // 1. add PARQUETReaderOptions
 // 2. readHdfsFile(url)
 void PARQUETFileSplitter::load(std::string url) {
     cur_fn_ = "";
-    url_ = url;
-    protocol_ = "nfs";
+    int prefix = url.find("://");
+    url_ = url.substr(prefix + 3);
+    protocol_ = url.substr(0, prefix);
+    if (protocol_ == "hdfs") {
+        struct hdfsBuilder* builder = hdfsNewBuilder();
+        hdfsBuilderSetNameNode(builder, husky::Context::get_param("hdfs_namenode").c_str());
+        hdfsBuilderSetNameNodePort(builder, std::stoi(husky::Context::get_param("hdfs_namenode_port")));
+        fs_ = hdfsBuilderConnect(builder);
+        hdfsFreeBuilder(builder);
+    }
 }
 
 // ask master for offset and url
 // we are not using fn for now since url is not a directory
 boost::string_ref PARQUETFileSplitter::fetch_block(bool is_next) {
     BinStream question;
-    question << url_;
+    question << url_ << protocol_;
     BinStream answer = husky::Context::get_coordinator()->ask_master(question, husky::TYPE_PARQUET_BLK_REQ);
     std::string fn;
     answer >> fn;
@@ -65,20 +77,20 @@ boost::string_ref PARQUETFileSplitter::fetch_block(bool is_next) {
     } else if (fn != cur_fn_) {
         cur_fn_ = fn;
         bool memory_map = true;
-        reader_ = parquet::ParquetFileReader::OpenFile(cur_fn_, memory_map);
+        if (protocol_ == "nfs") {
+            reader_ = parquet::ParquetFileReader::OpenFile(cur_fn_, memory_map);
+        } else if (protocol_ == "hdfs") {
+            reader_ = parquet::ParquetFileReader::Open(hdfs_source(fs_, cur_fn_), parquet::default_reader_properties());
+        }
     }
     read_by_row(fn);
     return boost::string_ref(buffer_);
 }
 
 void PARQUETFileSplitter::read_by_row(std::string fn) {
-    if (protocol_ == "hdfs") {
-        return;
-        // to be done
-    } else if (protocol_ == "nfs") {
+    if (protocol_ == "hdfs" || protocol_ == "nfs") {
         try {
             std::string line = "";
-            parquet::ParquetFilePrinter printer(reader_.get());
             const parquet::FileMetaData* file_metadata = reader_->metadata().get();
             auto group_reader = reader_->RowGroup(offset_);
             // Create readers for selected columns and print contents

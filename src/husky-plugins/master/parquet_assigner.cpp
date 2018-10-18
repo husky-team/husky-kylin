@@ -24,12 +24,14 @@
 #include "parquet/column_reader.h"
 #include "parquet/file_reader.h"
 #include "parquet/metadata.h"
+#include "parquet/properties.h"
 
 #include "base/log.hpp"
 #include "core/context.hpp"
 #include "master/master.hpp"
 
 #include "husky-plugins/core/constants.hpp"
+#include "husky-plugins/io/input/parquet_hdfs_source.hpp"
 
 namespace husky {
 
@@ -44,10 +46,16 @@ PARQUETBlockAssigner::PARQUETBlockAssigner() {
 void PARQUETBlockAssigner::master_main_handler() {
     auto& master = Master::get_instance();
     auto resp_socket = master.get_socket();
-    std::string url;
+    std::string url, protocol;
     BinStream stream = zmq_recv_binstream(resp_socket.get());
     stream >> url;
-    std::pair<std::string, size_t> ret = answer(url);
+    stream >> protocol;
+    protocol_ = protocol;
+    std::pair<std::string, size_t> ret;
+    if (protocol_ == "nfs")
+        ret = answer(url);
+    if (protocol_ == "hdfs")
+        ret = answer_hdfs(url);
     stream.clear();
     stream << ret.first << ret.second;
 
@@ -58,7 +66,11 @@ void PARQUETBlockAssigner::master_main_handler() {
     base::log_msg(" => " + ret.first + "@" + std::to_string(ret.second));
 }
 
-void PARQUETBlockAssigner::master_setup_handler() { num_workers_alive_ = Context::get_worker_info().get_num_workers(); }
+void PARQUETBlockAssigner::master_setup_handler() {
+    if (protocol_ != "nfs")
+        init_hdfs(Context::get_param("hdfs_namenode"), Context::get_param("hdfs_namenode_port"));
+    num_workers_alive_ = Context::get_worker_info().get_num_workers();
+}
 
 void PARQUETBlockAssigner::browse_local(const std::string& url) {
     // If url is a directory, recursively traverse all files in url
@@ -93,6 +105,100 @@ void PARQUETBlockAssigner::browse_local(const std::string& url) {
         base::log_msg("Exception cought: ");
         base::log_msg(ex.what());
     }
+}
+
+void PARQUETBlockAssigner::init_hdfs(const std::string& node, const std::string& port) {
+    int num_retries = 3;
+    while (num_retries--) {
+        struct hdfsBuilder* builder = hdfsNewBuilder();
+        hdfsBuilderSetNameNode(builder, node.c_str());
+        hdfsBuilderSetNameNodePort(builder, std::stoi(port));
+        fs_ = hdfsBuilderConnect(builder);
+        hdfsFreeBuilder(builder);
+        if (fs_)
+            break;
+    }
+    if (fs_)
+        return;
+    else
+        LOG_I << "Failed to connect to HDFS " << node << ":" << port;
+}
+
+void PARQUETBlockAssigner::browse_hdfs(const std::string& url) {
+    if (!fs_)
+        return;
+    try {
+        int num_files;
+        size_t total = 0;
+        hdfsFileInfo* file_info = hdfsListDirectory(fs_, url.c_str(), &num_files);
+        for (int i = 0; i < num_files; i++) {
+            // for each files in the dir
+            if (file_info[i].mKind != kObjectKindFile)
+                continue;
+            std::string path = file_info[i].mName;
+            reader_ =
+                parquet::ParquetFileReader::Open(io::hdfs_source(fs_, path), parquet::default_reader_properties());
+            const parquet::FileMetaData* file_metadata = reader_->metadata().get();
+            file_size_[path] = file_metadata->num_row_groups();
+            file_offset_[path] = 0;
+            finish_dict_[path] = 0;
+        }
+        hdfsFreeFileInfo(file_info, num_files);
+    } catch (const std::exception& ex) {
+        LOG_I << "Exception Caught: " << ex.what();
+    }
+}
+
+std::pair<std::string, size_t> PARQUETBlockAssigner::answer_hdfs(std::string& url) {
+    // Directory or file status initialization
+    // This condition is true either when the begining of the file or
+    // all the workers has finished reading this file or directory
+    std::pair<std::string, size_t> ret = {"", 0};  // selected_file, offset
+    if (!fs_)
+        return ret;
+    if (finish_dict_.find(url) == finish_dict_.end()) {
+        browse_hdfs(url);
+        finish_dict_[url];
+    }
+    int num_files;
+    size_t total = 0;
+    hdfsFileInfo* file_info = hdfsListDirectory(fs_, url.c_str(), &num_files);
+    if (num_files == 1) {
+        if (file_info[0].mKind != kObjectKindFile)
+            return ret;
+        std::string path = file_info[0].mName;
+        if (file_offset_[path] < file_size_[path]) {
+            ret.first = path;
+            ret.second = file_offset_[path];
+            file_offset_[path] += 1;
+            finish_url(path);
+        }
+    } else if (num_files > 1) {
+        for (int i = 0; i < num_files; i++) {
+            // for each files in the dir
+            if (file_info[i].mKind != kObjectKindFile)
+                continue;
+            std::string path = file_info[i].mName;
+            if (finish_dict_.find(path) != finish_dict_.end()) {
+                if (file_offset_[path] < file_size_[path]) {
+                    ret.first = path;
+                    ret.second = file_offset_[path];
+                    file_offset_[path] += 1;
+                    // no need to continue searching for next file
+                    break;
+                } else {
+                    finish_dict_[path] += 1;
+                    if (finish_dict_[path] == num_workers_alive_) {
+                        finish_url(path);
+                    }
+                    // need to search for next file
+                    continue;
+                }
+            }
+        }
+    }
+    hdfsFreeFileInfo(file_info, num_files);
+    return ret;
 }
 
 std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
