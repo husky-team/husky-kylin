@@ -18,6 +18,7 @@
 #include <string>
 
 #include "boost/utility/string_ref.hpp"
+#include "hdfs/hdfs.h"
 #include "parquet/file_reader.h"
 
 #include "io/input/file_splitter_base.hpp"
@@ -70,6 +71,9 @@ class PARQUETFileSplitter final : public FileSplitterBase {
 
     // PARQUET reader to help to read PARQUET files
     std::unique_ptr<parquet::ParquetFileReader> reader_;
+
+    // handle of HDFS
+    hdfsFS fs_;
 };
 
 }  // namespace io
