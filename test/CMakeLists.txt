@@ -20,6 +20,7 @@ target_link_libraries(UnitTest ${GTEST_LIBRARY})
 target_link_libraries(UnitTest ${GMOCK_LIBRARY})
 file(COPY resources DESTINATION ${PROJECT_BINARY_DIR})
 
+
 ### Functional Test
 
 # TestModel
@@ -38,3 +39,11 @@ target_link_libraries(TestCube ${HUSKY_EXTERNAL_LIB})
 # add_executable(TestXXX test-xxx.cpp)
 # target_link_libraries(TestXXX ${husky})
 # target_link_libraries(TestXXX ${HUSKY_EXTERNAL_LIB})
+
+add_executable(TestTable ../test-table.cpp)
+target_link_libraries(TestTable husky)
+target_link_libraries(TestTable ${HUSKY_EXTERNAL_LIB})
+target_link_libraries(UnitTest ${husky-kylin})
+target_link_libraries(UnitTest ${HUSKY_EXTERNAL_LIB})
+target_link_libraries(UnitTest ${GTEST_LIBRARY})
+target_link_libraries(UnitTest ${GMOCK_LIBRARY})
