@@ -1,11 +1,11 @@
 # Copyright 2018 Husky Team
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
 
 include_directories(${PROJECT_SOURCE_DIR} ${HUSKY_EXTERNAL_INCLUDE} ${EXTERNAL_INCLUDE})
 
-set(husky-kylin husky extension-husky-io extension-husky-master) 
+set(husky-kylin husky extension-husky-io extension-husky-master)
 
 ### Applications
 
@@ -39,3 +39,9 @@ add_executable(TestJSON parse_json.cpp)
 target_link_libraries(TestJSON husky)
 target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB})
 add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})
+
+# ReadCSV
+add_executable(ReadCSV read_test_csv.cpp)
+target_link_libraries(ReadCSV husky)
+target_link_libraries(ReadCSV ${HUSKY_EXTERNAL_LIB})
+add_dependencies(ReadCSV ${EXTERNAL_DEPENDENCIES})
