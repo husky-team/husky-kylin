@@ -38,7 +38,7 @@ class ORCInputFormat : public InputFormatBase {
     virtual bool is_setup() const;
 
    protected:
-    bool fetch_new_block();
+    bool fetch_new_batch();
     void clear_buffer();
     std::string url_;
     int l = 0;
