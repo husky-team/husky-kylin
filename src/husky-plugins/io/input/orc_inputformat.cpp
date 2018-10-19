@@ -49,11 +49,11 @@ void ORCInputFormat::set_input(const std::string& url) {
 }
 
 // buffer_ got from the orc_splitter must be '\n' seperated lines
-// this saves us a lot of block handling
+// this saves us a lot of batch handling
 bool ORCInputFormat::next(boost::string_ref& ref) {
     if (buffer_.empty() || r == buffer_.size() - 1) {
         clear_buffer();
-        bool success = fetch_new_block();
+        bool success = fetch_new_batch();
         if (success == false) {
             return false;
         }
@@ -61,12 +61,13 @@ bool ORCInputFormat::next(boost::string_ref& ref) {
     r = helper::find_next(buffer_, l, '\n');
     ref = buffer_.substr(l, r - l);
     // FIXME dy: this is equal to l = r + 1;
-    l = helper::find_next(buffer_, r, '\n') + 1;
+    // l = helper::find_next(buffer_, r, '\n') + 1;
+    l = r + 1;
     return true;
 }
 
-bool ORCInputFormat::fetch_new_block() {
-    // fetch a new block
+bool ORCInputFormat::fetch_new_batch() {
+    // fetch a new batch
     buffer_ = splitter_.fetch_block();
     if (buffer_.empty()) {
         return false;

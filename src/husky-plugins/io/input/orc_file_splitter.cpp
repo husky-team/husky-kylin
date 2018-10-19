@@ -16,6 +16,7 @@
 #include "husky-plugins/io/input/orc_file_splitter.hpp"
 
 #include <string>
+#include <vector>
 
 #include "orc/ColumnPrinter.hh"
 #include "orc/OrcFile.hh"
@@ -27,6 +28,56 @@
 #include "core/coordinator.hpp"
 
 #include "husky-plugins/core/constants.hpp"
+#include "husky-plugins/io/input/orc_hdfs_inputstream.hpp"
+
+namespace orc {
+// This class is used to print records row by row without field names for each rows.
+// Within each row record, fields are segregated by a tab.
+class HDFSColumnPrinter : public ColumnPrinter {
+   public:
+    HDFSColumnPrinter(std::string& buf, const Type& type) : ColumnPrinter(buf) {
+        for (unsigned int i = 0; i < type.getSubtypeCount(); i++) {
+            fieldPrinter.push_back(createColumnPrinter(buf, type.getSubtype(i)).release());
+        }
+    }
+
+    virtual ~HDFSColumnPrinter() {
+        for (size_t i = 0; i < fieldPrinter.size(); i++) {
+            delete fieldPrinter[i];
+        }
+    }
+    void printRow(uint64_t rowId) override {
+        if (hasNulls && !notNull[rowId]) {
+            writeString(buffer, "null");
+        } else {
+            for (unsigned int i = 0; i < fieldPrinter.size(); i++) {
+                if (i != 0) {
+                    writeString(buffer, "\t");
+                }
+                fieldPrinter[i]->printRow(rowId);
+            }
+        }
+    }
+
+    void reset(const ColumnVectorBatch& batch) override {
+        ColumnPrinter::reset(batch);
+        const StructVectorBatch& structBatch = dynamic_cast<const StructVectorBatch&>(batch);
+        for (size_t i = 0; i < fieldPrinter.size(); i++) {
+            fieldPrinter[i]->reset(*(structBatch.fields[i]));
+        }
+    }
+
+   private:
+    void writechar(std::string& file, char ch) { file += ch; }
+
+    void writeString(std::string& file, const char* ptr) {
+        size_t len = strlen(ptr);
+        file.append(ptr, len);
+    }
+
+    std::vector<ColumnPrinter*> fieldPrinter;
+};
+}
 
 namespace husky {
 namespace io {
@@ -36,20 +87,20 @@ using orc::createReader;
 using orc::readLocalFile;
 using orc::ColumnVectorBatch;
 
-// default number of lines in one read operation
-size_t ORCFileSplitter::row_batch_size = 8 * 1024;
-
 ORCFileSplitter::ORCFileSplitter() { offset_ = 0; }
-ORCFileSplitter::~ORCFileSplitter() {}
+ORCFileSplitter::~ORCFileSplitter() {
+    if (protocol_ == "hdfs")
+        hdfsDisconnect(fs_);
+}
 
-// initialize reader with the file url
-// TODO(sy):
-// 1. add orcReaderOptions
-// 2. readHdfsFile(url)
 void ORCFileSplitter::load(std::string url) {
-    cur_fn = "";
+    cur_fn_ = "";
     url_ = url;
-    protocol_ = "nfs";
+    struct hdfsBuilder* builder = hdfsNewBuilder();
+    hdfsBuilderSetNameNode(builder, husky::Context::get_param("hdfs_namenode").c_str());
+    hdfsBuilderSetNameNodePort(builder, std::stoi(husky::Context::get_param("hdfs_namenode_port")));
+    fs_ = hdfsBuilderConnect(builder);
+    hdfsFreeBuilder(builder);
 }
 
 // ask master for offset and url
@@ -63,52 +114,66 @@ boost::string_ref ORCFileSplitter::fetch_block(bool is_next) {
     answer >> offset_;
     if (fn == "") {
         return "";
-    } else if (fn != cur_fn) {
-        cur_fn = fn;
+    } else if (fn != cur_fn_) {
+        cur_fn_ = fn;
         ReaderOptions opts;
-        reader = createReader(readLocalFile(cur_fn), opts);
-        int rows_per_stripe = reader->getStripe(0)->getNumberOfRows();
-        if (rows_per_stripe != 0) {
-            row_batch_size = rows_per_stripe;
-        }
+        reader_ = createReader(read_hdfs_file(fs_, cur_fn_), opts);
     }
-    read_by_row(fn);
-    return boost::string_ref(buffer);
+    return read_by_batch(offset_);
 }
 
-void ORCFileSplitter::read_by_row(std::string fn) {
-    if (protocol_ == "hdfs") {
-        return;
-        // to be done
-    } else if (protocol_ == "nfs") {
-        try {
-            std::string line = "";
-
-            orc::RowReaderOptions row_opts;
-            ORC_UNIQUE_PTR<orc::RowReader> rowReader = reader->createRowReader(row_opts);
-            rowReader->seekToRow(offset_);
-            std::unique_ptr<orc::ColumnPrinter> printer = createColumnPrinter(line, &rowReader->getSelectedType());
-            std::unique_ptr<ColumnVectorBatch> batch = rowReader->createRowBatch(row_batch_size);
-            if (!buffer.empty()) {
-                buffer.clear();
+boost::string_ref ORCFileSplitter::read_by_batch(size_t offset) {
+    // if (protocol_ == "hdfs") {
+    buffer_.clear();
+    try {
+        std::string line = "";
+        orc::RowReaderOptions row_opts;
+        std::unique_ptr<orc::RowReader> row_reader = reader_->createRowReader(row_opts);
+        row_reader->seekToRow(offset);
+        std::unique_ptr<orc::ColumnPrinter> printer(new orc::HDFSColumnPrinter(line, row_reader->getSelectedType()));
+        std::unique_ptr<ColumnVectorBatch> batch = row_reader->createRowBatch(kOrcRowBatchSize);
+        if (row_reader->next(*batch)) {
+            printer->reset(*batch);
+            for (unsigned int i = 0; i < batch->numElements; ++i) {
+                line.clear();
+                printer->printRow(i);
+                //    LOG_I << line;
+                buffer_ += line;
             }
-            if (rowReader->next(*batch)) {
-                printer->reset(*batch);
-                uint64_t i;
-                for (i = 0; i < batch->numElements; ++i) {
-                    line.clear();
-                    printer->printRow(i);
-                    line += "\n";
-                    buffer += line;
-                }
-            }
-        } catch (const std::exception& e) {
-            base::log_msg(e.what());
         }
-    } else {
-        base::log_msg("Protocol:" + protocol_ + " is not suported");
-        return;
+    } catch (const std::exception& e) {
+        LOG_I << e.what();
     }
+    return boost::string_ref(buffer_);
+    // } else if (protocol_ == "nfs") {
+    /*   try {
+           std::string line = "";
+
+           orc::RowReaderOptions row_opts;
+           ORC_UNIQUE_PTR<orc::RowReader> row_reader = reader_->createRowReader(row_opts);
+           row_reader->seekToRow(offset_);
+           std::unique_ptr<orc::ColumnPrinter> printer = createColumnPrinter(line, &row_reader->getSelectedType());
+           std::unique_ptr<ColumnVectorBatch> batch = row_reader->createRowBatch(kOrcRowBatchSize);
+           if (!buffer_.empty()) {
+               buffer_.clear();
+           }
+           if (row_reader->next(*batch)) {
+               printer->reset(*batch);
+               unsigned long i;
+               for (i = 0; i < batch->numElements; ++i) {
+                   line.clear();
+                   printer->printRow(i);
+                   line += "\n";
+                   buffer_ += line;
+               }
+           }
+       } catch (const std::exception& e) {
+           base::log_msg(e.what());
+       }
+   } else {
+       base::log_msg("Protocol:" + protocol_ + " is not suported");
+       return;
+   }*/
 }
 
 }  // namespace io
