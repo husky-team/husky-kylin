@@ -17,6 +17,7 @@ addons:
       - gcc-6
       - g++-6
       - clang-format-3.9
+      - wget
 
 before_install:
   - sudo add-apt-repository -y ppa:kojoley/boost
@@ -24,18 +25,40 @@ before_install:
   - sudo apt-get install -qq software-properties-common
   - sudo apt-get install -qq libgoogle-perftools-dev libzmq3-dev mercurial git
   - sudo apt-get -y install libboost-{chrono,program-options,date-time,thread,system,filesystem,regex,serialization}1.58{-dev,.0}
+  - sudo apt-get -y install libxml2-dev libkrb5-dev uuid-dev libgsasl7-dev # for libhdfs3
+  - sudo apt-get -y install autoconf automake curl libtool # for protobuf
 
 install:
   - mkdir tmp
   - cd tmp
+  # ZMQ
   - git clone https://github.com/zeromq/cppzmq
   - cd cppzmq
   - git reset --hard 4648ebc9643119cff2a433dff4609f1a5cb640ec  # Since only libzmq3-dev can be installed. The new zmq.hpp requires version above 4.
   - sudo cp zmq.hpp /usr/local/include
-  - cd ../..
-  - rm -rf tmp
+  - cd .. # back to tmp
+  # ProtoBuf
+  - wget https://github.com/protocolbuffers/protobuf/releases/download/v3.5.1/protobuf-cpp-3.5.1.tar.gz
+  - tar -xzf protobuf-cpp-3.5.1.tar.gz
+  - cd protobuf-3.5.1
+  - ./configure
+  - make -j4
+  - sudo make install
+  - export PROTOBUF_HOME=/usr/local
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+  - cd .. # back to tmp
+  - cd .. && rm -rf tmp
+  # libhdfs3
+  - git clone https://github.com/wangzw/libhdfs3
+  - cd libhdfs3
+  - mkdir build && cd build
+  - ../bootstrap --prefix=/usr/local/
+  - make -j8
+  - sudo make install
+  - cd ../.. # back to tmp
 
 before_script:
+  - export PROTOBUF_HOME=/usr/local
   - export CLANG_FORMAT=clang-format-3.9
   - ./scripts/lint.py
   - ./scripts/clang-format.py -o check

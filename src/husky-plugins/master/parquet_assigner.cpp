@@ -52,10 +52,11 @@ void PARQUETBlockAssigner::master_main_handler() {
     stream >> protocol;
     protocol_ = protocol;
     std::pair<std::string, size_t> ret;
-    if (protocol_ == "nfs")
+    if (protocol_ == "nfs") {
         ret = answer(url);
-    if (protocol_ == "hdfs")
+    } else if (protocol_ == "hdfs") {
         ret = answer_hdfs(url);
+    }
     stream.clear();
     stream << ret.first << ret.second;
 
@@ -113,15 +114,12 @@ void PARQUETBlockAssigner::init_hdfs(const std::string& node, const std::string&
         struct hdfsBuilder* builder = hdfsNewBuilder();
         hdfsBuilderSetNameNode(builder, node.c_str());
         hdfsBuilderSetNameNodePort(builder, std::stoi(port));
-        fs_ = hdfsBuilderConnect(builder);
-        hdfsFreeBuilder(builder);
-        if (fs_)
-            break;
+        fs_ = hdfsBuilderConnect(builder);  // builder is freed in this function call
+        if (fs_) {
+            return;
+        }
     }
-    if (fs_)
-        return;
-    else
-        LOG_I << "Failed to connect to HDFS " << node << ":" << port;
+    LOG_I << "Failed to connect to HDFS " << node << ":" << port;
 }
 
 void PARQUETBlockAssigner::browse_hdfs(const std::string& url) {
@@ -149,7 +147,7 @@ void PARQUETBlockAssigner::browse_hdfs(const std::string& url) {
     }
 }
 
-std::pair<std::string, size_t> PARQUETBlockAssigner::answer_hdfs(std::string& url) {
+std::pair<std::string, size_t> PARQUETBlockAssigner::answer_hdfs(const std::string& url) {
     // Directory or file status initialization
     // This condition is true either when the begining of the file or
     // all the workers has finished reading this file or directory
@@ -201,7 +199,7 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer_hdfs(std::string& ur
     return ret;
 }
 
-std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
+std::pair<std::string, size_t> PARQUETBlockAssigner::answer(const std::string& url) {
     // Directory or file status initialization
     // This condition is true either when the begining of the file or
     // all the workers has finished reading this file or directory
@@ -254,10 +252,10 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer(std::string& url) {
 
 /// Return the number of workers who have finished reading the files in
 /// the given url
-int PARQUETBlockAssigner::get_num_finished(std::string& url) { return finish_dict_[url]; }
+int PARQUETBlockAssigner::get_num_finished(const std::string& url) const { return finish_dict_.at(url); }
 
 /// Use this when all workers finish reading the files in url
-void PARQUETBlockAssigner::finish_url(std::string& url) {
+void PARQUETBlockAssigner::finish_url(const std::string& url) {
     file_size_.erase(url);
     file_offset_.erase(url);
     finish_dict_.erase(url);

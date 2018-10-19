@@ -35,13 +35,13 @@ class PARQUETBlockAssigner {
     void master_main_handler();
     void master_setup_handler();
     void browse_local(const std::string& url);
-    std::pair<std::string, size_t> answer(std::string& url);
-    std::pair<std::string, size_t> answer_hdfs(std::string& url);
+    std::pair<std::string, size_t> answer(const std::string& url);
+    std::pair<std::string, size_t> answer_hdfs(const std::string& url);
     /// Return the number of workers who have finished reading the files in
     /// the given url
-    int get_num_finished(std::string& url);
+    int get_num_finished(const std::string& url) const;
     /// Use this when all workers finish reading the files in url
-    void finish_url(std::string& url);
+    void finish_url(const std::string& url);
     void init_hdfs(const std::string& node, const std::string& port);
     void browse_hdfs(const std::string& url);
 
