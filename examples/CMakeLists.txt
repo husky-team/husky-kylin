@@ -29,8 +29,7 @@ add_dependencies(WordCountORC ${EXTERNAL_DEPENDENCIES})
 # WordCountPARQUET
 add_executable(WordCountPARQUET wc_mr_parquet.cpp)
 target_link_libraries(WordCountPARQUET ${husky-kylin})
-target_link_libraries(WordCountPARQUET ${EXTERNAL_LIB})
-target_link_libraries(WordCountPARQUET ${HUSKY_EXTERNAL_LIB})
+target_link_libraries(WordCountPARQUET ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
 set_property(TARGET WordCountPARQUET PROPERTY CXX_STANDARD 14)
 add_dependencies(WordCountPARQUET ${EXTERNAL_DEPENDENCIES})
 

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_directories(${PROJECT_SOURCE_DIR} ${EXTERNAL_INCLUDE})
+include_directories(${PROJECT_SOURCE_DIR} ${EXTERNAL_INCLUDE} ${HUSKY_EXTERNAL_INCLUDE})
 set(husky-kylin husky extension-husky-io extension-husky-master) 
 
 ### IO ###

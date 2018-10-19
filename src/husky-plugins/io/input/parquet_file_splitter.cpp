@@ -58,8 +58,7 @@ void PARQUETFileSplitter::load(std::string url) {
         struct hdfsBuilder* builder = hdfsNewBuilder();
         hdfsBuilderSetNameNode(builder, husky::Context::get_param("hdfs_namenode").c_str());
         hdfsBuilderSetNameNodePort(builder, std::stoi(husky::Context::get_param("hdfs_namenode_port")));
-        fs_ = hdfsBuilderConnect(builder);
-        hdfsFreeBuilder(builder);
+        fs_ = hdfsBuilderConnect(builder);  // builder is freed in this function call
     }
 }
 
