@@ -52,9 +52,12 @@ void PARQUETBlockAssigner::master_main_handler() {
     stream >> protocol;
     protocol_ = protocol;
     std::pair<std::string, size_t> ret;
-    if (protocol_ == "nfs") {
+    if (protocol_ == "nfs" || protocol_ == "file") {
         ret = answer(url);
     } else if (protocol_ == "hdfs") {
+        if (!fs_) {
+            init_hdfs(Context::get_param("hdfs_namenode"), Context::get_param("hdfs_namenode_port"));
+        }
         ret = answer_hdfs(url);
     }
     stream.clear();
@@ -64,14 +67,10 @@ void PARQUETBlockAssigner::master_main_handler() {
     zmq_sendmore_dummy(resp_socket.get());
     zmq_send_binstream(resp_socket.get(), stream);
 
-    base::log_msg(" => " + ret.first + "@" + std::to_string(ret.second));
+    LOG_I << " => " + ret.first + "@" + std::to_string(ret.second);
 }
 
-void PARQUETBlockAssigner::master_setup_handler() {
-    if (protocol_ != "nfs")
-        init_hdfs(Context::get_param("hdfs_namenode"), Context::get_param("hdfs_namenode_port"));
-    num_workers_alive_ = Context::get_worker_info().get_num_workers();
-}
+void PARQUETBlockAssigner::master_setup_handler() { num_workers_alive_ = Context::get_worker_info().get_num_workers(); }
 
 void PARQUETBlockAssigner::browse_local(const std::string& url) {
     // If url is a directory, recursively traverse all files in url
@@ -97,14 +96,14 @@ void PARQUETBlockAssigner::browse_local(const std::string& url) {
                     }
                 }
             } else {
-                base::log_msg("Given url:" + url + " is not a regular file or diercotry");
+                LOG_I << "Given url:" + url + " is not a regular file or diercotry";
             }
         } else {
-            base::log_msg("Given url:" + url + " doesn't exist!");
+            LOG_I << "Given url:" + url + " doesn't exist!";
         }
     } catch (const std::exception& ex) {
-        base::log_msg("Exception cought: ");
-        base::log_msg(ex.what());
+        LOG_I << "Exception cought: ";
+        LOG_I << ex.what();
     }
 }
 
@@ -119,15 +118,15 @@ void PARQUETBlockAssigner::init_hdfs(const std::string& node, const std::string&
             return;
         }
     }
-    LOG_I << "Failed to connect to HDFS " << node << ":" << port;
+    LOG_E << "Failed to connect to HDFS " << node << ":" << port;
 }
 
 void PARQUETBlockAssigner::browse_hdfs(const std::string& url) {
-    if (!fs_)
+    if (!fs_) {
         return;
+    }
     try {
         int num_files;
-        size_t total = 0;
         hdfsFileInfo* file_info = hdfsListDirectory(fs_, url.c_str(), &num_files);
         for (int i = 0; i < num_files; i++) {
             // for each files in the dir
@@ -140,6 +139,7 @@ void PARQUETBlockAssigner::browse_hdfs(const std::string& url) {
             file_size_[path] = file_metadata->num_row_groups();
             file_offset_[path] = 0;
             finish_dict_[path] = 0;
+            // TODO(tatiana): consider locality
         }
         hdfsFreeFileInfo(file_info, num_files);
     } catch (const std::exception& ex) {
@@ -152,50 +152,38 @@ std::pair<std::string, size_t> PARQUETBlockAssigner::answer_hdfs(const std::stri
     // This condition is true either when the begining of the file or
     // all the workers has finished reading this file or directory
     std::pair<std::string, size_t> ret = {"", 0};  // selected_file, offset
-    if (!fs_)
+    if (!fs_) {
         return ret;
+    }
     if (finish_dict_.find(url) == finish_dict_.end()) {
         browse_hdfs(url);
         finish_dict_[url];
     }
-    int num_files;
-    size_t total = 0;
-    hdfsFileInfo* file_info = hdfsListDirectory(fs_, url.c_str(), &num_files);
-    if (num_files == 1) {
-        if (file_info[0].mKind != kObjectKindFile)
-            return ret;
-        std::string path = file_info[0].mName;
-        if (file_offset_[path] < file_size_[path]) {
-            ret.first = path;
-            ret.second = file_offset_[path];
-            file_offset_[path] += 1;
-            finish_url(path);
-        }
-    } else if (num_files > 1) {
-        for (int i = 0; i < num_files; i++) {
-            // for each files in the dir
-            if (file_info[i].mKind != kObjectKindFile)
-                continue;
-            std::string path = file_info[i].mName;
-            if (finish_dict_.find(path) != finish_dict_.end()) {
-                if (file_offset_[path] < file_size_[path]) {
-                    ret.first = path;
-                    ret.second = file_offset_[path];
-                    file_offset_[path] += 1;
-                    // no need to continue searching for next file
-                    break;
-                } else {
-                    finish_dict_[path] += 1;
-                    if (finish_dict_[path] == num_workers_alive_) {
-                        finish_url(path);
-                    }
-                    // need to search for next file
-                    continue;
-                }
-            }
+
+    std::vector<std::string> path_to_erase;
+    for (auto& pair : file_size_) {
+        if (finish_dict_[pair.first] == num_workers_alive_) {
+            path_to_erase.push_back(pair.first);
         }
     }
-    hdfsFreeFileInfo(file_info, num_files);
+    for (auto& path : path_to_erase) {
+        finish_url(path);
+    }
+
+    for (auto& pair : file_size_) {
+        const auto& path = pair.first;
+        if (file_offset_[path] < file_size_[path]) {
+            ret.first = path;
+            ret.second = file_offset_[path]++;
+            return ret;
+        } else {
+            finish_dict_[path] += 1;
+        }
+    }
+    // TODO(tatiana): test multiple url request case
+    if (++finish_dict_[url] == num_workers_alive_) {
+        finish_url(url);
+    }
     return ret;
 }
 

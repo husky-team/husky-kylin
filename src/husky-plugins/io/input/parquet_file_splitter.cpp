@@ -42,8 +42,9 @@ namespace io {
 PARQUETFileSplitter::PARQUETFileSplitter() { offset_ = 0; }
 
 PARQUETFileSplitter::~PARQUETFileSplitter() {
-    if (protocol_ == "hdfs")
+    if (protocol_ == "hdfs" && fs_ != nullptr) {
         hdfsDisconnect(fs_);
+    }
 }
 // initialize reader with the file url
 // TODO(sy):
@@ -76,7 +77,7 @@ boost::string_ref PARQUETFileSplitter::fetch_block(bool is_next) {
     } else if (fn != cur_fn_) {
         cur_fn_ = fn;
         bool memory_map = true;
-        if (protocol_ == "nfs") {
+        if (protocol_ == "nfs" || protocol_ == "file") {
             reader_ = parquet::ParquetFileReader::OpenFile(cur_fn_, memory_map);
         } else if (protocol_ == "hdfs") {
             reader_ = parquet::ParquetFileReader::Open(hdfs_source(fs_, cur_fn_), parquet::default_reader_properties());
@@ -87,7 +88,7 @@ boost::string_ref PARQUETFileSplitter::fetch_block(bool is_next) {
 }
 
 void PARQUETFileSplitter::read_by_row(std::string fn) {
-    if (protocol_ == "hdfs" || protocol_ == "nfs") {
+    if (protocol_ == "hdfs" || protocol_ == "nfs" || protocol_ == "file") {
         try {
             std::string line = "";
             const parquet::FileMetaData* file_metadata = reader_->metadata().get();

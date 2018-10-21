@@ -22,6 +22,7 @@
 #include "hdfs/hdfs.h"
 #include "parquet/util/memory.h"
 
+#include "base/assert.hpp"
 #include "base/exception.hpp"
 #include "base/log.hpp"
 #include "base/thread_support.hpp"
@@ -37,7 +38,7 @@ class PARQUETHdfsSource final : public parquet::RandomAccessSource {
         hdfs_fs_ = hdfs_fs;
         file_name_ = file;
         hdfs_file_ = hdfsOpenFile(hdfs_fs_, file_name_.c_str(), O_RDONLY, 0, 0, 0);
-        assert(hdfs_file_ != NULL);
+        ASSERT_MSG(hdfs_file_ != NULL, "hdfsOpenFile failed");
         hdfsFileInfo* file_info = hdfsGetPathInfo(hdfs_fs_, file_name_.c_str());
         length_ = file_info->mSize;
         hdfsFreeFileInfo(file_info, 1);
