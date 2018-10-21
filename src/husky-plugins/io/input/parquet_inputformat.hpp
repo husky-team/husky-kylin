@@ -27,7 +27,7 @@
 namespace husky {
 namespace io {
 
-class PARQUETInputFormat : public InputFormatBase {
+class PARQUETInputFormat : public husky::io::InputFormatBase {
    public:
     typedef boost::string_ref RecordT;
 
@@ -36,7 +36,7 @@ class PARQUETInputFormat : public InputFormatBase {
 
     virtual void set_input(const std::string& url);
     virtual bool next(boost::string_ref& ref);
-    virtual bool is_setup() const;
+    virtual bool is_setup() const override;
 
    protected:
     bool fetch_new_block();

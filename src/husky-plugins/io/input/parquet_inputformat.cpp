@@ -40,10 +40,11 @@ void PARQUETInputFormat::set_input(const std::string& url) {
         // Setting with a same url last time will do nothing.
         return;
     url_ = url;
-    int prefix = url_.find("://");
-    ASSERT_MSG(prefix != std::string::npos, ("Cannot analyze protocol from " + url_).c_str());
-    std::string protocol = url_.substr(0, prefix);
-    splitter_.load(url_.substr(prefix + 3));
+    splitter_.load(url_);
+    // int prefix = url_.find("://");
+    // ASSERT_MSG(prefix != std::string::npos, ("Cannot analyze protocol from " + url_).c_str());
+    // std::string protocol = url_.substr(0, prefix);
+    // splitter_.load(url_.substr(prefix + 3));
     is_setup_ |= PARQUETInputFormatSetUp::InputSetUp;
 }
 

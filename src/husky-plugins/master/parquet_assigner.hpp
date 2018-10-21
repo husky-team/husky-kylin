@@ -30,7 +30,11 @@ namespace husky {
 class PARQUETBlockAssigner {
    public:
     PARQUETBlockAssigner();
-    ~PARQUETBlockAssigner() = default;
+    ~PARQUETBlockAssigner() {
+        if (fs_ != nullptr) {
+            hdfsDisconnect(fs_);
+        }
+    }
 
     void master_main_handler();
     void master_setup_handler();
