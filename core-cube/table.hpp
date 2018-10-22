@@ -23,7 +23,7 @@ public:
 	std::vector<std::string> raw_data;
 	int row_num;
 	int column_num;
-	std::vector<RowKey*> data;
+	std::vector<RowKey> data;
     char delimiter;
 	Table(){
 		this->raw_data.clear();
@@ -50,13 +50,7 @@ public:
 	    };
 
 	    husky::load(infmt, read_line);
-	    //husky::LOG_I<<"in the read_data, the size of raw data is "<<this->raw_data.size();
     }
-/*
-	void create_column_key(){
-		//int column_num = 
-	}
-*/	
 
 
 	void delete_raw_data(){
@@ -66,7 +60,6 @@ public:
 
 	void cut(){
         if(this->row_num == 0){
-            husky::LOG_I << "row_num = 0 in the cut";
             return;
         }
 		std::stringstream linestr;
@@ -76,29 +69,21 @@ public:
 			linestr = std::stringstream(this->raw_data[i]);
 			line_data.clear();
 			tok.clear();
-            //husky::LOG_I << "in the for loop";
-			while(std::getline(linestr, tok, char(1))){
-                //husky::LOG_I << "in the while loop";
-                //husky::LOG_I<<"token: " << tok;
+			while(std::getline(linestr, tok, this->delimiter)){
 				line_data.push_back(tok);
 			}
-            // this->column_num = line_data.size();
-            //husky::LOG_I<< "token size is "<<line_data.size();
-			RowKey* line_seperated_key = new RowKey(line_data, line_data.size()); 
+			RowKey line_seperated_key = RowKey(line_data, line_data.size()); 
 			this->data.push_back(line_seperated_key);
 		}
-        this->column_num = this->data[0]->original_data.size();
-        husky::LOG_I<<"finish cut";
-        husky::LOG_I<<"column_num: "<<this->column_num;
-        husky::LOG_I<<"row_num "<<this->row_num;
-        husky::LOG_I<<"The original data size is "<<this->data[0]->original_data.size();
-	}
+	    this->delete_raw_data();
+        this->column_num = this->data[0].original_data.size();
+    }
+
 
     void encode(){
         for(int i=0; i<this->data.size(); i++){
-            this->data[i]->encode();
+            this->data[i].encode();
         }
-        husky::LOG_I << "finish encode";
     }
 
     void cut_and_encode(){
@@ -133,15 +118,11 @@ public:
     }
 
 	void get_data(int row, int column, std::string* niche){
-	    husky::LOG_I << "in the get_data";
         if(!this->validate(row,column)){
             niche = NULL;
-            husky::LOG_I<<"invalid";
-            husky::LOG_I<<"The size of rowkey is "<<this->data.size();
             return;
         }
-    
-        this->data[row]->decode(column, niche);
+        this->data[row].decode(column, niche);
 	}
 
 	void get_data(int row, int column, int* niche){
@@ -149,8 +130,7 @@ public:
             niche = NULL;
             return;
         }
-
-		this->data[row]->decode(column, niche);
+		this->data[row].decode(column, niche);
 	}
 
 	void get_data(int row, int column, float* niche){
@@ -158,7 +138,7 @@ public:
             niche = NULL;
             return;
         }
-        this->data[row]->decode(column, niche);
+        this->data[row].decode(column, niche);
 	}
 
 	void get_data(int row, int column, double* niche){
@@ -166,14 +146,8 @@ public:
             niche = NULL;
             return;
         }
-        this->data[row]->decode(column, niche);
+        this->data[row].decode(column, niche);
 	}
-
-
-
-
-
-
 
 };
 
