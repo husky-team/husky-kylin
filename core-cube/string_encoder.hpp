@@ -1,15 +1,15 @@
 #ifndef STRINGENCODER
 #define STRINGENCODER
-#include "base_encoder.hpp"
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <vector>
 
 
-class StringEncoder: public BaseEncoder{
+class StringEncoder{
 public:
-	StringEncoder():BaseEncoder(){
+	StringEncoder(){
 		;
 	}
 
@@ -18,81 +18,85 @@ public:
 		;
 	}
 
-	unsigned char* encode(std::string original_data){
-		unsigned char* encoded_data = new unsigned char[original_data.size()];
-		//std::cout<<"size: "<<original_data.size()<<std::endl;
-		memcpy(encoded_data, original_data.c_str(), original_data.size());
-		//encoded_data = encoded_data+1;
-		//std::cout<<"original: "<<original_data<<std::endl;
-		//std::cout<<"encode: "<<encoded_data<<std::endl;
+    void encode(const std::string& value, std::vector<unsigned char>& output, int outputOffset){
+        unsigned char* encoded_data = new unsigned char[value.size()];
+        memcpy(encoded_data, value.c_str(), value.size());
+        for(int i=0; i<value.size(); i++)
+            output[i+outputOffset] = encoded_data[i];
+        delete[] encoded_data;
+    }
+
+
+    std::vector<unsigned char> encode(std::string original_data){
+        std::vector<unsigned char> encoded_data;
+        unsigned char* temp_uc = new unsigned char[original_data.size()];
+		memcpy(temp_uc, original_data.c_str(), original_data.size());
+        for(int i=0; i<original_data.size(); i++)
+            encoded_data.push_back(temp_uc[i]);
+        delete[] temp_uc;
 		return encoded_data;
 	}
 
-	void decode(unsigned char* c, std::string* s){
-		//std::cout<<"decode two\n";
-		memcpy(s, c, strlen((char*)c));
-		//std::cout<<"len: "<<strlen((char*)c)<<std::endl;
-		//std::cout<<"finish memcpy in decode two\n";
 
+	void decode(const std::vector<unsigned char>& c, std::string* s){
+        unsigned char* temp_uc = new unsigned char[c.size()];
+        for(int i=0; i<c.size(); i++)
+            temp_uc[i] = c[i];
+		memcpy(s, temp_uc, strlen((char*)temp_uc));
+        delete[] temp_uc;
 	}
 
-	void decode(unsigned char* c, int* i){
+	void decode(const std::vector<unsigned char>& c, int* i){
 		std::string temp;
 		this->decode(c, &temp);
 		std::stringstream ss(temp);
 		ss >> *i;
 	}
 
-	void decode(unsigned char* c, double* d){
+	void decode(const std::vector<unsigned char>& c, double* d){
 		std::string temp;
 		this->decode(c, &temp);
 		std::stringstream ss(temp);
 		ss >> *d;
 	}
 
-	void decode(unsigned char* c, float* f){
+	void decode(const std::vector<unsigned char>& c, float* f){
 		std::string temp;
 		this->decode(c, &temp);
 		std::stringstream ss(temp);
 		ss >> *f;
-
 	}
 
-	void decode(unsigned char* c, std::string* s, int offset, int size){
-		//std::cout<<"check\n";
-		//std::cout<<"offset: "<<offset<<"    size: "<<size<<std::endl;
-		//std::cout<<c[0]<<" in decode two"<<std::endl;
-		char* tempc = new char[size];
-		//unsigned char* d = c + offset;
-		memcpy(tempc, (c+offset), size);
-		*s = tempc;
-		//std::memcpy(tempc, (c+offset), size);
-		//std::cout<<tempc<<" temp in decode 2"<<std::endl;
-		//std::cout<<tempc<<" decode 2"<<std::endl;
-		//std::cout<<*s<<" decode 2"<<std::endl;
+	void decode(std::vector<unsigned char>& c, std::string* s, int offset, int size){
+		char* temp_c = new char[size];
+        unsigned char* temp_uc = new unsigned char[size];
+        for(int i=0; i<size; i++)
+            temp_uc[i] = c[offset+i];
+		memcpy(temp_c, temp_uc, size);
+		*s = std::string(temp_c);
+        delete[] temp_c;
+        delete[] temp_uc;
 	}
 
-	void decode(unsigned char* c, int* i, int offset, int size){
+	void decode(std::vector<unsigned char>& c, int* i, int offset, int size){
 		std::string temp;
 		this->decode(c, &temp, offset, size);
 		std::stringstream ss(temp);
 		ss >> *i;
 	}
 
-	void decode(unsigned char* c, double* d, int offset, int size){
+	void decode(std::vector<unsigned char>& c, double* d, int offset, int size){
 		std::string temp;
 		this->decode(c, &temp, offset, size);
-		//std::cout<<"decode double: "<<temp<<std::endl;
 		std::stringstream ss(temp);
 		ss >> *d;
 	}
 
-	void decode(unsigned char* c, float* f, int offset, int size){
+	void decode(std::vector<unsigned char>& c, float* f, int offset, int size){
 		std::string temp;
 		this->decode(c, &temp, offset, size);
 		std::stringstream ss(temp);
 		ss >> *f;
-
 	}
 
 
