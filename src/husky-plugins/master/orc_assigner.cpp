@@ -102,8 +102,7 @@ void ORCBlockAssigner::init_hdfs(const std::string& node, const std::string& por
         struct hdfsBuilder* builder = hdfsNewBuilder();
         hdfsBuilderSetNameNode(builder, node.c_str());
         hdfsBuilderSetNameNodePort(builder, std::stoi(port));
-        fs_ = hdfsBuilderConnect(builder);
-        hdfsFreeBuilder(builder);
+        fs_ = hdfsBuilderConnect(builder);  // builder is freed in this function call
         if (fs_)
             break;
     }
@@ -118,10 +117,14 @@ void ORCBlockAssigner::browse_hdfs(const std::string& url) {
         return;
 
     try {
-        int num_files;
+        int num_files = 0;
         size_t total = 0;
         auto& files = files_dict_[url];
         hdfsFileInfo* file_info = hdfsListDirectory(fs_, url.c_str(), &num_files);
+        if (num_files == 0) {
+            LOG_I << "No entry in the path " << url;
+            return;
+        }
         LOG_I << "Total number of files: " << num_files;
         for (int i = 0; i < num_files; i++) {
             // for each files in the dir
@@ -140,7 +143,7 @@ void ORCBlockAssigner::browse_hdfs(const std::string& url) {
     }
 }
 
-std::pair<std::string, size_t> ORCBlockAssigner::answer(std::string& url) {
+std::pair<std::string, size_t> ORCBlockAssigner::answer(const std::string& url) {
     // Directory or file status initialization
     // This condition is true either when the begining of the file or
     // all the workers has finished reading this file or directory

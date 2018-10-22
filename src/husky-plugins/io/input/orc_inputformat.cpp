@@ -20,6 +20,7 @@
 
 #include "boost/utility/string_ref.hpp"
 
+#include "base/assert.hpp"
 #include "base/log.hpp"
 #include "io/input/inputformat_helper.hpp"
 
@@ -59,9 +60,8 @@ bool ORCInputFormat::next(boost::string_ref& ref) {
         }
     }
     r = helper::find_next(buffer_, l, '\n');
+    ASSERT_MSG(r != -1, "The buffer should contain whole lines");
     ref = buffer_.substr(l, r - l);
-    // FIXME dy: this is equal to l = r + 1;
-    // l = helper::find_next(buffer_, r, '\n') + 1;
     l = r + 1;
     return true;
 }

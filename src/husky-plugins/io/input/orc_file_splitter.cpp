@@ -31,6 +31,7 @@
 #include "husky-plugins/io/input/orc_hdfs_inputstream.hpp"
 
 namespace orc {
+
 // This class is used to print records row by row without field names for each rows.
 // Within each row record, fields are segregated by a tab.
 class HDFSColumnPrinter : public ColumnPrinter {
@@ -137,8 +138,7 @@ boost::string_ref ORCFileSplitter::read_by_batch(size_t offset) {
             for (unsigned int i = 0; i < batch->numElements; ++i) {
                 line.clear();
                 printer->printRow(i);
-                //    LOG_I << line;
-                buffer_ += line;
+                buffer_ += line + "\n";
             }
         }
     } catch (const std::exception& e) {

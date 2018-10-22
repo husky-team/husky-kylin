@@ -22,7 +22,11 @@ struct OrcFileDesc {
 class ORCBlockAssigner {
    public:
     ORCBlockAssigner();
-    ~ORCBlockAssigner() = default;
+    ~ORCBlockAssigner() {
+        if (fs_) {
+            hdfsDisconnect(fs_);
+        }
+    }
 
     void master_main_handler();
     void master_setup_handler();
@@ -34,7 +38,7 @@ class ORCBlockAssigner {
     /// Use this when all workers finish reading the files in url
     void finish_url(std::string& url);
    */
-    std::pair<std::string, size_t> answer(std::string& url);
+    std::pair<std::string, size_t> answer(const std::string& url);
     void init_hdfs(const std::string& node, const std::string& port);
     void browse_hdfs(const std::string& url);
 
