@@ -18,7 +18,7 @@
 #include <set>
 #include <string>
 
-#include "core-cube/cuboid/cuboid_scheduler.hpp"
+#include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 #include "core-cube/model/cube_desc.hpp"
 #include "core-metadata/metadata/model/measure_desc.hpp"
 
@@ -27,26 +27,27 @@ namespace cube {
 
 class CubeInstance {
    public:
-    CubeInstance(const std::string& cube_name, CubeDesc* cube_desc);
+    CubeInstance(const std::string& cube_name, const std::string & cube_desc_json_path);
     ~CubeInstance() {}
 
-    inline int get_build_level() { return 0; /* TODO(tatiana) */ }
-    inline CubeDesc* get_cube_desc() { return cube_desc_; }
-    inline std::shared_ptr<CuboidScheduler> get_cuboid_scheduler() const { return cuboid_scheduler_; }
+    inline int get_build_level() { return cuboid_scheduler_->get_build_level(); }
+    inline std::shared_ptr<CubeDesc> get_cube_desc() { return cube_desc_; }
+    inline std::shared_ptr<CuboidSchedulerBase> get_cuboid_scheduler() const { return cuboid_scheduler_; }
     inline const std::string& get_desc_name() const { return desc_name_; }
     inline const std::string& get_name() const { return name_; }
     std::set<uint64_t> get_cuboids();
-    std::list<MeasureDesc*> get_measures();
+    inline const std::vector<std::shared_ptr<MeasureDesc>> get_measures() const {return cube_desc_->get_measures(); }
     std::string get_root_fact_table();
 
     inline void set_name(const std::string& name) { name_ = name; }
     inline void set_desc_name(const std::string& desc_name) { desc_name_ = desc_name; }
+    inline void init_cuboid_scheduler(std::vector<uint64_t>& all_cuboid_ids) { cuboid_scheduler_->init_cuboid_tree(all_cuboid_ids); }
 
    private:
     std::string name_;  // instance name
     std::string desc_name_;
-    CubeDesc* cube_desc_;  // not owned
-    std::shared_ptr<CuboidScheduler> cuboid_scheduler_;
+    std::shared_ptr<CubeDesc> cube_desc_;
+    std::shared_ptr<CuboidSchedulerBase> cuboid_scheduler_;
 };
 
 }  // namespace cube

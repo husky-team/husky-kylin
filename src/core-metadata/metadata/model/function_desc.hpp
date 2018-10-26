@@ -16,6 +16,7 @@
 
 #include <set>
 #include <string>
+#include <memory>
 
 #include "core-metadata/measure/measure_type.hpp"
 #include "core-metadata/metadata/datatype/data_type.hpp"

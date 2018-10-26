@@ -16,6 +16,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "core-metadata/dimension/dimension_encoding.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
@@ -30,7 +31,7 @@ class RowKeyColDesc {
     RowKeyColDesc(const std::string& column, const std::string& encoding);
     ~RowKeyColDesc() {}
 
-    void init(int index, const CubeDesc& cube_desc);
+    void init(int index, const std::shared_ptr<CubeDesc> & cube_desc);
 
     inline const std::string& get_encoding() const { return encoding_; }
     inline void set_encoding(const std::string& encoding) { this->encoding_ = encoding; }
@@ -41,7 +42,7 @@ class RowKeyColDesc {
     inline const std::string& get_encoding_name() const { return encoding_name_; }
     inline const std::string& get_encoding_args() const { return encoding_args_; }
     inline int get_bit_index() const { return bit_index_; }
-    inline TblColRef* get_col_ref() { return col_ref_; }
+    inline std::shared_ptr<TblColRef> get_col_ref() { return col_ref_; }
 
    private:
     std::string column_;
@@ -53,7 +54,7 @@ class RowKeyColDesc {
     std::string encoding_args_;  // interger size
     // std::vector<std::string> encodingArgs;
     int bit_index_;
-    TblColRef* col_ref_;
+    std::shared_ptr<TblColRef> col_ref_;
 };
 
 }  // namespace cube

@@ -16,6 +16,8 @@
 
 #include <map>
 #include <vector>
+#include <memory>
+#include <utility>
 
 #include "core-cube/model/row_key_col_desc.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
@@ -27,30 +29,42 @@ class CubeDesc;
 
 class RowKeyDesc {
    public:
-    explicit RowKeyDesc(CubeDesc* cube_desc) {}
-    ~RowKeyDesc();
-
-    inline const std::vector<RowKeyColDesc*>& get_row_key_columns() const { return row_key_columns_; }
-    inline int get_column_bit_index(TblColRef* col) const { return 0; /*TODO(tatiana)*/ }
-    inline RowKeyColDesc* get_col_desc(TblColRef* col) const { return nullptr; /*TODO(tatiana)*/ }
-    inline uint64_t get_full_mask() const { return full_mask_; /*TODO(tatiana)*/ }
-    inline const std::vector<int>& get_columns_need_index() const { return columns_need_index_; /*TODO(tatiana)*/ }
-
-    inline void set_cube_desc(CubeDesc* cube_desc) { /*TODO(tatiana)*/
+    explicit RowKeyDesc() {
+        // init_columns_need_index(); // about columns using "dictionary"
     }
-    inline void set_row_key_columns(const std::vector<RowKeyColDesc*>& row_key_columns) { /*TODO(tatiana)*/
+    ~RowKeyDesc() {}
+
+    inline const std::vector<std::shared_ptr<RowKeyColDesc>>& get_row_key_columns() const { return row_key_columns_; }
+    inline int get_column_bit_index(const std::shared_ptr<TblColRef> & col) const {
+        return get_col_desc(col)->get_bit_index();
+    }
+    inline std::shared_ptr<RowKeyColDesc> get_col_desc(const std::shared_ptr<TblColRef> & col) const {
+        auto col_desc_itr = column_map_.find(col);
+        if(col_desc_itr == column_map_.end()) {
+            // throw some exception
+        }
+        return col_desc_itr->second;
+    }
+    inline uint64_t get_full_mask() const { return full_mask_; /*TODO(tatiana)*/ }
+    // inline const std::vector<int>& get_columns_need_index() const { return columns_need_index_; }
+
+    inline void set_cube_desc(const std::shared_ptr<CubeDesc> & cube_desc) {
+        cube_desc_ = cube_desc;
+        build_row_key();
+    }
+    inline void add_row_key_col(const std::shared_ptr<RowKeyColDesc> & row_key_col ){
+        row_key_columns_.push_back(row_key_col);
     }
 
    private:
-    void init_columns_need_index() { /*TODO(tatiana)*/
-    }
-    void build_row_key() { /*TODO(tatiana)*/
-    }
+    // void init_columns_need_index() {}
+    void build_row_key();
 
-    std::vector<RowKeyColDesc*> row_key_columns_;
+    std::vector<std::shared_ptr<RowKeyColDesc>> row_key_columns_;
+    std::shared_ptr<CubeDesc> cube_desc_;
     uint64_t full_mask_;
-    std::map<TblColRef*, RowKeyColDesc*> column_map_;
-    std::vector<int> columns_need_index_;
+    std::map<std::shared_ptr<TblColRef>, std::shared_ptr<RowKeyColDesc>> column_map_;
+    // std::vector<int> columns_need_index_;
 };
 
 }  // namespace cube

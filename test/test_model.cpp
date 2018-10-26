@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "glog/logging.h"
 
@@ -36,22 +37,22 @@ int main(int argc, char** argv) {
     google::LogToStderr();
 
     // For testing only
-    DataModelDesc* model = new DataModelDesc("./resources/model.json", "./resources/table.json");
+    std::shared_ptr<DataModelDesc> model = std::make_shared<DataModelDesc>();
+    model->init("./resources/model.json", "./resources/table.json");
     // LOG(INFO)<<"The model owner: "<<model->getOwner()<<std::endl;
-
     // Test DataModelDesc
     LOG(INFO) << "The model name: " << model->get_name();
 
     std::string table = "KYLIN_SALES";
-    TableRef* find_table = model->find_table(table);
+    std::shared_ptr<TableRef> find_table = model->find_table(table);
     LOG(INFO) << "Found table name: " << find_table->get_alias();
 
     std::string col1 = "PART_DT";
-    TblColRef* find_tbl_col = model->find_column(table, col1);
+    std::shared_ptr<TblColRef> find_tbl_col = model->find_column(table, col1);
     LOG(INFO) << "Found column by table: " << find_tbl_col->get_name();
 
     std::string col2 = "OPS_USER_ID";
-    TblColRef* find_col = model->find_column(col2);
+    std::shared_ptr<TblColRef> find_col = model->find_column(col2);
     LOG(INFO) << "Found column: " << find_col->get_name();
 
     // Test TableRef
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "The root fact table alias: " << root_fact_table_ref->get_alias();
 
     // Test TblColRef
-    TblColRef* find_col_ref = root_fact_table_ref->get_column(col2);
+    auto find_col_ref = root_fact_table_ref->get_column(col2);
     LOG(INFO) << "Column Identity: " << find_col_ref->get_identity();
 
     // Test TableDesc

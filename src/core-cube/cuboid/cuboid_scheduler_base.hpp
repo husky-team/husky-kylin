@@ -28,7 +28,7 @@ class CubeDesc;
 
 class CuboidSchedulerBase {
    public:
-    CuboidSchedulerBase(CubeDesc* cube_desc) : cube_desc_(cube_desc) {}
+    CuboidSchedulerBase(const std::shared_ptr<CubeDesc> & cube_desc) : cube_desc_(cube_desc) {}
     // CuboidSchedulerBase() {}  // for test
     ~CuboidSchedulerBase() {}
 
@@ -44,13 +44,15 @@ class CuboidSchedulerBase {
     /** Returns a valid cuboid that best matches the request cuboid. */
     virtual uint64_t find_best_match_cuboid(uint64_t cuboid) const = 0;
 
+    virtual void init_cuboid_tree(std::vector<uint64_t>& all_cuboid_ids) = 0;
+
     // ============================================================================
 
     inline uint64_t get_base_cuboid_id() const { return Cuboid::get_base_cuboid_id(cube_desc_); }
 
     // inline uint64_t get_base_cuboid_id() { return 31; }  // hard code; for test only
 
-    inline CubeDesc* get_cube_desc() const { return cube_desc_; }
+    inline std::shared_ptr<CubeDesc> get_cube_desc() const { return cube_desc_; }
 
     /** Checks whether a cuboid is valid or not. */
     inline virtual bool is_valid(uint64_t request_cuboid) const {
@@ -71,7 +73,7 @@ class CuboidSchedulerBase {
     inline int get_build_level() { return get_cuboids_by_layer().size() - 1; }
 
    protected:
-    CubeDesc* cube_desc_;  // not owned, this is my owner
+    std::shared_ptr<CubeDesc> cube_desc_;  // not owned, this is my owner
 
    private:
     std::vector<std::vector<uint64_t>> cuboids_by_layer_;
