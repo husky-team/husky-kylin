@@ -35,21 +35,21 @@ class AbstractRowKeyEncoder {
     // }
     inline void set_blank_byte(unsigned char blank_byte) { blank_byte_ = blank_byte; }
     inline uint64_t get_cuboid_id() const { return cuboid_->get_id(); }
-    inline void set_cuboid_id(Cuboid* cuboid) { cuboid_ = cuboid; }
+    inline void set_cuboid_id(std::shared_ptr<Cuboid> cuboid) { cuboid_ = cuboid; }
 
     // virtual std::vector<unsigned char> creat_buf() = 0;
     virtual void encode(const std::vector<unsigned char>& body_bytes, std::vector<unsigned char>& output_buf) = 0;
-    virtual std::vector<unsigned char> encode(std::map<TblColRef*, std::string>& value_map) = 0;
+    virtual std::vector<unsigned char> encode(std::map<std::shared_ptr<TblColRef>, std::string>& value_map) = 0;
     virtual std::vector<unsigned char> encode(std::vector<std::string>& values) = 0;
 
    protected:
-    AbstractRowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, Cuboid* cuboid)
+    AbstractRowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, std::shared_ptr<Cuboid> cuboid)
         : cube_desc_(cube_desc), cuboid_(cuboid) {}
-    ~AbstractRowKeyEncoder() { delete cuboid_; }
+    ~AbstractRowKeyEncoder() {}
 
     unsigned char blank_byte_ = DEFUAL_BLANK_BYTE;
     std::shared_ptr<CubeDesc> cube_desc_;
-    Cuboid* cuboid_;  // not owned
+    std::shared_ptr<Cuboid> cuboid_;  // not owned
 };
 
 const unsigned char AbstractRowKeyEncoder::DEFUAL_BLANK_BYTE = 0xff;

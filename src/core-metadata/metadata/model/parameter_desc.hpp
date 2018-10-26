@@ -15,6 +15,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
 
@@ -30,8 +31,8 @@ class ParameterDesc {
     inline void set_type(const std::string& type) { type_ = type; }
     inline const std::string& get_value() const { return value_; }
     inline void set_value(std::string value) { value_ = value; }
-    inline TblColRef* get_col_ref() { return col_ref_; }
-    inline void set_tbl_col_ref(TblColRef* col_ref) { col_ref_ = col_ref; }
+    inline std::shared_ptr<TblColRef> get_col_ref() { return col_ref_; }
+    inline void set_tbl_col_ref(std::shared_ptr<TblColRef> col_ref) { col_ref_ = col_ref; }
     bool is_column_type() const;
 
    private:
@@ -39,7 +40,7 @@ class ParameterDesc {
     std::string value_;
 
     // computed attributes
-    TblColRef* col_ref_ = nullptr;  // not owned
+    std::shared_ptr<TblColRef> col_ref_ = nullptr;  // not owned
 };
 
 }  // namespace cube

@@ -35,51 +35,6 @@ namespace cube {
 
 using json = nlohmann::json;
 
-DataModelDesc::DataModelDesc(const std::string& modelJsonPath, const std::string& tableJsonPath) {
-    // std::string modelJsonPath = "model.json"; // should be in hdfs
-    std::ifstream ifs(modelJsonPath);
-    json j = json::parse(ifs);
-
-    name_ = j["name"].get<std::string>();
-    // owner = j["owner"].get<std::string>();
-    root_fact_table_ = j["fact_table"].get<std::string>();
-
-    // init root_fact_table_ref_
-    TableDesc root_fact_table_desc(tableJsonPath);
-    std::string root_fact_table_name = root_fact_table_desc.get_name();
-    root_fact_table_ref_ = std::make_shared<TableRef>(this, root_fact_table_name, std::move(root_fact_table_desc));
-    add_table_name(root_fact_table_name, root_fact_table_ref_);
-
-    // init dimensions
-    json j_dimensions = j["dimensions"];
-    for (json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
-        std::string table = (*it)["table"].get<std::string>();
-
-        json j_columns = (*it)["columns"];
-        std::vector<std::string> columns;
-        for (json::iterator it = j_columns.begin(); it != j_columns.end(); it++) {
-            columns.push_back((*it).get<std::string>());
-        }
-
-        dimensions_.push_back(ModelDimensionDesc(table, columns));
-    }
-
-    // init metrics
-    json j_metrics = j["metrics"];
-    for (json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
-        std::string metric_name = (*it).get<std::string>();
-        metrics_.push_back(find_column(metric_name)->get_identity());
-    }
-}
-
-// std::string DataModelDesc::getOwner() {
-//   return owner;
-// }
-
-// void DataModelDesc::setOwner(const std::string& owner) {
-//   this->owner = owner;
-// }
-
 void DataModelDesc::add_table_name(const std::string& name, const std::shared_ptr<TableRef>& ref) {
     if (table_name_map_.count(name)) {
         table_name_map_.insert(std::pair<std::string, TableRef*>(name, nullptr));
@@ -100,21 +55,23 @@ void DataModelDesc::add_table_name(const std::string& name, const std::shared_pt
 //   add_table_name(table->get_identity(), ref);
 // }
 
-TableRef* DataModelDesc::find_table(std::string& table) const {
+std::shared_ptr<TableRef> DataModelDesc::find_table(std::string& table) const {
     boost::to_upper(table);
-    TableRef* result = table_name_map_.find(table)->second;
+    std::shared_ptr<TableRef> result = table_name_map_.find(table)->second;
     // error detection: result == NULL
     return result;
 }
 
-TblColRef* DataModelDesc::find_column(std::string& table, std::string& column) const {
-    TableRef* tableRef = find_table(table);
+std::shared_ptr<TblColRef> DataModelDesc::find_column(std::string& table, std::string& column) const {
+    std::shared_ptr<TableRef> tableRef = find_table(table);
     boost::to_upper(column);
     return tableRef->get_column(column);
 }
 
-TblColRef* DataModelDesc::find_column(std::string& column) const {
-    TblColRef* result = nullptr;
+std::shared_ptr<TblColRef> DataModelDesc::find_column(std::string& column) const {
+    // TblColRef* result = nullptr;
+    std::shared_ptr<TblColRef> result;
+    result.reset();
     // std::string input = column;
 
     boost::to_upper(column);
@@ -124,7 +81,7 @@ TblColRef* DataModelDesc::find_column(std::string& column) const {
         for (std::set<std::shared_ptr<TableRef>>::iterator it = all_table_refs_.begin(); it != all_table_refs_.end();
              ++it) {
             result = (*it)->get_column(column);
-            if (result != nullptr)
+            if (result != NULL)
                 return result;
         }
     } else {
@@ -137,10 +94,42 @@ TblColRef* DataModelDesc::find_column(std::string& column) const {
     return result;
 }
 
-// void DataModelDesc::init(TableDesc * rootTableDesc) {
-//   initRootTable(rootTableDesc);
-//   initDimensionAndMetrics();
-// }
+void DataModelDesc::init(const std::string& model_json_path, const std::string& table_json_path) {
+    std::ifstream ifs(model_json_path);
+    json j = json::parse(ifs);
+
+    name_ = j["name"].get<std::string>();
+    // owner = j["owner"].get<std::string>();
+    root_fact_table_ = j["fact_table"].get<std::string>();
+
+    // init root_fact_table_ref_
+    TableDesc root_fact_table_desc(table_json_path);
+    std::string root_fact_table_name = root_fact_table_desc.get_name();
+    root_fact_table_ref_ = std::make_shared<TableRef>(shared_from_this(), root_fact_table_name, std::move(root_fact_table_desc));
+    add_table_name(root_fact_table_name, root_fact_table_ref_);
+
+    // init dimensions
+    json j_dimensions = j["dimensions"];
+    for (json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
+        std::string table = (*it)["table"].get<std::string>();
+        // should add_table_name(table) ? need more table.json to test!
+
+        json j_columns = (*it)["columns"];
+        std::vector<std::string> columns;
+        for (json::iterator it = j_columns.begin(); it != j_columns.end(); it++) {
+            columns.push_back((*it).get<std::string>());
+        }
+
+        dimensions_.push_back(ModelDimensionDesc(table, columns));
+    }
+
+    // init metrics
+    json j_metrics = j["metrics"];
+    for (json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
+        std::string metric_name = (*it).get<std::string>();
+        metrics_.push_back(find_column(metric_name)->get_identity());
+    }
+}
 
 // void DataModelDesc::initRootTable(TableDesc * rootTableDesc) {
 //   root_fact_table_ref_ = new TableRef(this, rootDesc.get_name(), rootDesc);

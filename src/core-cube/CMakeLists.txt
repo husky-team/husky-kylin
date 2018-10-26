@@ -24,6 +24,7 @@ file(GLOB core-cube-src
   model/cube_desc.cpp
   model/dimension_desc.cpp
   model/row_key_col_desc.cpp
+  model/row_key_desc.cpp
   kv/row_key_encoder.cpp
   )
 

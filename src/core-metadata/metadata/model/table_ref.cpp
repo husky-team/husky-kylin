@@ -27,21 +27,21 @@
 namespace husky {
 namespace cube {
 
-TableRef::TableRef(DataModelDesc* model, const std::string& alias, TableDesc&& table)
+TableRef::TableRef(std::shared_ptr<DataModelDesc> model, const std::string& alias, TableDesc&& table)
     : model_(model), table_(table), alias_(alias) {
     model_name_ = model->get_name();
     std::vector<ColumnDesc>& column_vector = table_.get_columns();
     for (std::vector<ColumnDesc>::iterator it = column_vector.begin(); it != column_vector.end(); ++it) {
-        columns_.insert(std::make_pair(it->get_name(), TblColRef(this, &(*it))));
+        columns_.insert(std::make_pair(it->get_name(), std::make_shared<TblColRef>(this, &(*it))));
     }
 }
 
-TblColRef* TableRef::get_column(const std::string& name) {
+std::shared_ptr<TblColRef> TableRef::get_column(const std::string& name) {
     auto pos = columns_.find(name);
     if (pos == columns_.end()) {
         return nullptr;
     }
-    return &(pos->second);
+    return pos->second;
 }
 
 }  // namespace cube

@@ -17,19 +17,20 @@
 #include <string>
 
 #include "core-metadata/metadata/model/data_model_desc.hpp"
+#include "core-cube/model/cube_desc.hpp"
 
 namespace husky {
 namespace cube {
 
-DimensionDesc::DimensionDesc(const std::string& name, const std::string& table, const std::string& column)
-    : name_(name), table_(table), column_(column) {
-    // Init table
-    // TODO(tatiana):
-    // DataModelDesc* model = cubeDesc.getModel();
-    // table_ref_ = model.findTable(table);
+void DimensionDesc::init(const std::shared_ptr<CubeDesc>& cube_desc) { 
+	cube_desc_ = cube_desc;
 
-    // Init column
-    // column = model.findColumn(table, column);
+	std::shared_ptr<DataModelDesc> model = cube_desc_->get_model();
+
+	table_ref_ = model->find_table(table_);
+	// table_ = table_ref_->get_alias();
+
+	column_ref_ = model->find_column(table_, column_);
 }
 
 }  // namespace cube

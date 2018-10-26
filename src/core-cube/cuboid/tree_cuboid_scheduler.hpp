@@ -80,13 +80,14 @@ class TreeCuboidScheduler : public CuboidSchedulerBase {
         std::map<uint64_t, TreeNode*> index_;
     };
 
-    TreeCuboidScheduler(CubeDesc* cube_desc, std::vector<uint64_t>& all_cuboid_ids)
+    TreeCuboidScheduler(const std::shared_ptr<CubeDesc>& cube_desc, std::vector<uint64_t>& all_cuboid_ids)
         : CuboidSchedulerBase(cube_desc), cuboid_tree_(CuboidTree::create_from_cuboids(all_cuboid_ids)) {}
     // explicit TreeCuboidScheduler(std::vector<uint64_t>& all_cuboid_ids)
     // : cuboid_tree_(CuboidTree::create_from_cuboids(all_cuboid_ids)) {}
-    explicit TreeCuboidScheduler(CubeDesc* cube_desc) : CuboidSchedulerBase(cube_desc) {}
+    explicit TreeCuboidScheduler(const std::shared_ptr<CubeDesc> & cube_desc) : CuboidSchedulerBase(cube_desc) {}
     ~TreeCuboidScheduler() {}
 
+    inline void init_cuboid_tree(std::vector<uint64_t>& all_cuboid_ids) override { cuboid_tree_ = CuboidTree::create_from_cuboids(all_cuboid_ids); }
     inline std::set<uint64_t> get_all_cuboid_ids() const override { return cuboid_tree_.get_all_cuboid_ids(); }
     inline int get_cuboid_count() const override {
         return cuboid_tree_.get_cuboid_count(Cuboid::get_base_cuboid_id(cube_desc_));

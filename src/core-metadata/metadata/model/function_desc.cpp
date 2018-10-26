@@ -52,7 +52,7 @@ void FunctionDesc::init(DataModelDesc* model) {
     // TODO(tatiana): multiple parameters
     if (parameter_->is_column_type()) {
         std::string value = parameter_->get_value();
-        TblColRef* colRef = model->find_column(value);
+        std::shared_ptr<TblColRef> colRef = model->find_column(value);
         // p.setValue(colRef.get_identity());
         parameter_->set_tbl_col_ref(colRef);
     }

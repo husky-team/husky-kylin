@@ -28,6 +28,12 @@ target_link_libraries(TestModel ${husky-kylin-core})
 target_link_libraries(TestModel ${EXTERNAL_LIB})
 target_link_libraries(TestModel ${HUSKY_EXTERNAL_LIB})
 
+# TestCube
+add_executable(TestCube test_cube.cpp)
+target_link_libraries(TestCube ${husky-kylin-core})
+target_link_libraries(TestCube ${EXTERNAL_LIB})
+target_link_libraries(TestCube ${HUSKY_EXTERNAL_LIB})
+
 # TestXXX Template
 # add_executable(TestXXX test-xxx.cpp)
 # target_link_libraries(TestXXX ${husky})

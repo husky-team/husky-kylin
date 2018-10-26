@@ -29,7 +29,7 @@ namespace cube {
 
 class RowKeyEncoder : public AbstractRowKeyEncoder {
    public:
-    RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, Cuboid* cuboid);
+    RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, std::shared_ptr<Cuboid> cuboid);
     ~RowKeyEncoder() {}
 
     inline int get_header_length() const { return hearder_length_; }
@@ -48,7 +48,7 @@ class RowKeyEncoder : public AbstractRowKeyEncoder {
     // 	return v;
     // }
     void encode(const std::vector<unsigned char>& body_bytes, std::vector<unsigned char>& output_buf) override;
-    std::vector<unsigned char> encode(std::map<TblColRef*, std::string>& value_map) override;
+    std::vector<unsigned char> encode(std::map<std::shared_ptr<TblColRef>, std::string>& value_map) override;
     std::vector<unsigned char> encode(std::vector<std::string>& values) override;
 
    private:
@@ -57,7 +57,7 @@ class RowKeyEncoder : public AbstractRowKeyEncoder {
     // int uhc_length_ = -1;
     int hearder_length_;
 
-    void fill_column_value(TblColRef* column, int column_len, std::string& value_str,
+    void fill_column_value(std::shared_ptr<TblColRef> column, int column_len, std::string& value_str,
                            std::vector<unsigned char>& output_value, int output_offset) {
         IntegerDimEnc integer_dim_enc(4);
         DimensionEncoding* dim_enc = &integer_dim_enc;  // hard code! Should get DimEnc by column.
