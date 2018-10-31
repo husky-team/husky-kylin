@@ -14,7 +14,9 @@
 
 #include "core-metadata/metadata/model/table_ref.hpp"
 
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "glog/logging.h"
@@ -27,7 +29,7 @@
 namespace husky {
 namespace cube {
 
-TableRef::TableRef(std::shared_ptr<DataModelDesc> model, const std::string& alias, TableDesc&& table)
+TableRef::TableRef(DataModelDesc* model, const std::string& alias, TableDesc&& table)
     : model_(model), table_(table), alias_(alias) {
     model_name_ = model->get_name();
     std::vector<ColumnDesc>& column_vector = table_.get_columns();
@@ -36,7 +38,7 @@ TableRef::TableRef(std::shared_ptr<DataModelDesc> model, const std::string& alia
     }
 }
 
-std::shared_ptr<TblColRef> TableRef::get_column(const std::string& name) {
+std::shared_ptr<TblColRef> TableRef::get_column(const std::string& name) const {
     auto pos = columns_.find(name);
     if (pos == columns_.end()) {
         return nullptr;
