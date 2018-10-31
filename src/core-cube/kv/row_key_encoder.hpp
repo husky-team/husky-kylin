@@ -14,22 +14,22 @@
 
 #pragma once
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "core-cube/cuboid/cuboid.hpp"
 #include "core-cube/kv/abstract_row_key_encoder.hpp"
 #include "core-cube/kv/row_key_constants.hpp"
 #include "core-metadata/dimension/dimension_encoding.hpp"
 #include "core-metadata/dimension/integer_dim_enc.hpp"
 
-#include <map>
-#include <string>
-#include <vector>
-
 namespace husky {
 namespace cube {
 
 class RowKeyEncoder : public AbstractRowKeyEncoder {
    public:
-    RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, std::shared_ptr<Cuboid> cuboid);
+    RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, const std::shared_ptr<Cuboid>& cuboid);
     ~RowKeyEncoder() {}
 
     inline int get_header_length() const { return hearder_length_; }
@@ -43,9 +43,9 @@ class RowKeyEncoder : public AbstractRowKeyEncoder {
 
     /* override */
     // inline std::vector<unsigned char> creat_buf() {
-    // 	std::vector<unsigned char> v;
-    // 	v.reserve(get_bytes_length());
-    // 	return v;
+    //   std::vector<unsigned char> v;
+    //   v.reserve(get_bytes_length());
+    //   return v;
     // }
     void encode(const std::vector<unsigned char>& body_bytes, std::vector<unsigned char>& output_buf) override;
     std::vector<unsigned char> encode(std::map<std::shared_ptr<TblColRef>, std::string>& value_map) override;

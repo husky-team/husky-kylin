@@ -87,6 +87,7 @@ class TreeCuboidScheduler : public CuboidSchedulerBase {
     explicit TreeCuboidScheduler(const std::shared_ptr<CubeDesc>& cube_desc) : CuboidSchedulerBase(cube_desc) {}
     ~TreeCuboidScheduler() {}
 
+    // TODO(tatiana): sanity check init_cuboid_tree
     inline void init_cuboid_tree(std::vector<uint64_t>& all_cuboid_ids) override {
         cuboid_tree_ = CuboidTree::create_from_cuboids(all_cuboid_ids);
     }

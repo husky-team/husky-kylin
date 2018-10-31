@@ -31,7 +31,7 @@ class RowKeyColDesc {
     RowKeyColDesc(const std::string& column, const std::string& encoding);
     ~RowKeyColDesc() {}
 
-    void init(int index, const std::shared_ptr<CubeDesc>& cube_desc);
+    void init(int index, CubeDesc* cube_desc);
 
     inline const std::string& get_encoding() const { return encoding_; }
     inline void set_encoding(const std::string& encoding) { this->encoding_ = encoding; }

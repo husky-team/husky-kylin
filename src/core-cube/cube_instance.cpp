@@ -29,9 +29,10 @@ CubeInstance::CubeInstance(const std::string& cube_name, const std::string& cube
     cube_desc_ = std::make_shared<CubeDesc>(cube_desc_json_path);
     desc_name_ = cube_desc_->get_name();
     cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(cube_desc_);  // remember to init_cuboid_scheduler
+    cube_desc_->set_cuboid_scheduler(cuboid_scheduler_.get());
 }
 
-std::string CubeInstance::get_root_fact_table() {
+const std::string& CubeInstance::get_root_fact_table() {
     return cube_desc_->get_model()->get_root_fact_table_ref()->get_table_name();
 }
 

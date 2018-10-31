@@ -14,6 +14,8 @@
 
 #include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 
+#include <vector>
+
 #include "glog/logging.h"
 
 #include "core-cube/model/cube_desc.hpp"
@@ -48,7 +50,7 @@ std::vector<std::vector<uint64_t>> CuboidSchedulerBase::get_cuboids_by_layer() {
     }
 
     auto size = get_all_cuboid_ids().size();
-    CHECK(total_num == size) << "The cuboid number does not match " << total_num << " against expected " << size;
+    CHECK_EQ(total_num, size);
     return cuboids_by_layer_;
 }
 
