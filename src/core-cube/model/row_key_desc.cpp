@@ -24,21 +24,19 @@ namespace cube {
 //     build_row_key();
 // }
 
-void RowKeyDesc::build_row_key() { 
-    for(int i = 0; i < row_key_columns_.size(); i++) {
+void RowKeyDesc::build_row_key() {
+    for (int i = 0; i < row_key_columns_.size(); i++) {
         std::shared_ptr<RowKeyColDesc> row_key_col_desc = row_key_columns_[i];
         row_key_col_desc->init(row_key_columns_.size() - i - 1, cube_desc_);
         column_map_.insert(std::make_pair(row_key_col_desc->get_col_ref(), row_key_col_desc));
     }
 
     full_mask_ = 0L;
-    for(int i = 0; i < row_key_columns_.size(); i++) {
+    for (int i = 0; i < row_key_columns_.size(); i++) {
         int index = row_key_columns_[i]->get_bit_index();
         full_mask_ |= 1L << index;
     }
 }
 
-
 }  // namespace cube
 }  // namespace husky
-

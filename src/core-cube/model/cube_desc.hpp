@@ -24,8 +24,8 @@
 #include "core-cube/cuboid/tree_cuboid_scheduler.hpp"
 #include "core-cube/model/aggregation_group.hpp"
 #include "core-cube/model/dimension_desc.hpp"
-#include "core-cube/model/row_key_desc.hpp"
 #include "core-cube/model/row_key_col_desc.hpp"
+#include "core-cube/model/row_key_desc.hpp"
 #include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-metadata/metadata/model/measure_desc.hpp"
 #include "core-metadata/metadata/model/parameter_desc.hpp"
@@ -33,7 +33,7 @@
 namespace husky {
 namespace cube {
 
-class CubeDesc: public std::enable_shared_from_this<CubeDesc> {
+class CubeDesc : public std::enable_shared_from_this<CubeDesc> {
    public:
     explicit CubeDesc(const std::string& cubeDescJsonPath);
     CubeDesc() {}
@@ -47,24 +47,25 @@ class CubeDesc: public std::enable_shared_from_this<CubeDesc> {
     inline const std::shared_ptr<DataModelDesc> get_model() const { return model_; }
     inline std::shared_ptr<DataModelDesc> get_model() { return model_; }
     inline std::shared_ptr<RowKeyDesc> get_row_key() const { return row_key_; }
-    // inline std::vector<std::shared_ptr<RowKeyColDesc>> get_row_key_columns() const { return row_key_columns_; } // for test only
+    // inline std::vector<std::shared_ptr<RowKeyColDesc>> get_row_key_columns() const { return row_key_columns_; } //
+    // for test only
     inline std::list<AggregationGroup*> get_aggregation_groups() { return std::list<AggregationGroup*>(); }
     inline std::shared_ptr<CuboidSchedulerBase> get_initial_cuboid_scheduler() {
         if (cuboid_scheduler_ == nullptr)
             cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(shared_from_this());
         return cuboid_scheduler_;
     }
-    inline const std::vector<std::shared_ptr<MeasureDesc>> get_measures() const { return measures_;}
+    inline const std::vector<std::shared_ptr<MeasureDesc>> get_measures() const { return measures_; }
     inline const std::vector<std::shared_ptr<DimensionDesc>> get_dimensions() const { return dimensions_; }
 
     /* Setters */
     inline void set_name(const std::string& name) { name_ = name; }
     inline void set_model_name(const std::string& model_name) { model_name_ = model_name; }
-    inline void set_model(const std::shared_ptr<DataModelDesc> & model) { model_ = model; }
-    inline void set_row_key(const std::shared_ptr<RowKeyDesc> & row_key) { row_key_ = row_key; }
+    inline void set_model(const std::shared_ptr<DataModelDesc>& model) { model_ = model; }
+    inline void set_row_key(const std::shared_ptr<RowKeyDesc>& row_key) { row_key_ = row_key; }
 
     /* Initializers */
-    inline void init(const std::string & model_json_path, std::string & table_json_path) {
+    inline void init(const std::string& model_json_path, std::string& table_json_path) {
         /*For constuctors need shared_ptr(this)*/
 
         // init model
@@ -72,7 +73,7 @@ class CubeDesc: public std::enable_shared_from_this<CubeDesc> {
         model_->init(model_json_path, table_json_path);
 
         // init dimensions
-        for(auto dimension : dimensions_){
+        for (auto dimension : dimensions_) {
             dimension->init(shared_from_this());
         }
 

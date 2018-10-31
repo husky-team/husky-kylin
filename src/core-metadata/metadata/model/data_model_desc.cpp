@@ -105,7 +105,8 @@ void DataModelDesc::init(const std::string& model_json_path, const std::string& 
     // init root_fact_table_ref_
     TableDesc root_fact_table_desc(table_json_path);
     std::string root_fact_table_name = root_fact_table_desc.get_name();
-    root_fact_table_ref_ = std::make_shared<TableRef>(shared_from_this(), root_fact_table_name, std::move(root_fact_table_desc));
+    root_fact_table_ref_ =
+        std::make_shared<TableRef>(shared_from_this(), root_fact_table_name, std::move(root_fact_table_desc));
     add_table_name(root_fact_table_name, root_fact_table_ref_);
 
     // init dimensions

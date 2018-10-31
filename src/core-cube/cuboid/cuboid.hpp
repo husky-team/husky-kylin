@@ -29,15 +29,18 @@ class CubeDesc;
 
 class Cuboid {
    public:
-    Cuboid(const std::shared_ptr<CubeDesc> & cube_desc, uint64_t original_id, uint64_t valid_id);
+    Cuboid(const std::shared_ptr<CubeDesc>& cube_desc, uint64_t original_id, uint64_t valid_id);
     ~Cuboid() {}
 
-    static Cuboid find_cuboid(const std::shared_ptr<CuboidSchedulerBase> & cuboid_scheduler, const std::set<std::shared_ptr<TblColRef>>& dimensions);
-    static Cuboid find_by_bytes_id(const std::shared_ptr<CuboidSchedulerBase> & cuboid_scheduler, const std::vector<unsigned char>& cuboid_id);
-    static Cuboid find_by_long_id(const std::shared_ptr<CuboidSchedulerBase> & cuboid_scheduler, uint64_t cuboid_id);
-    static uint64_t to_cuboid_id(const std::shared_ptr<CubeDesc> & cube_desc, const std::set<std::shared_ptr<TblColRef>>& dimensions);
-    static uint64_t get_base_cuboid_id(const std::shared_ptr<CubeDesc> & cube);
-    static Cuboid get_base_cuboid(const std::shared_ptr<CubeDesc> & cube);
+    static Cuboid find_cuboid(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler,
+                              const std::set<std::shared_ptr<TblColRef>>& dimensions);
+    static Cuboid find_by_bytes_id(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler,
+                                   const std::vector<unsigned char>& cuboid_id);
+    static Cuboid find_by_long_id(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler, uint64_t cuboid_id);
+    static uint64_t to_cuboid_id(const std::shared_ptr<CubeDesc>& cube_desc,
+                                 const std::set<std::shared_ptr<TblColRef>>& dimensions);
+    static uint64_t get_base_cuboid_id(const std::shared_ptr<CubeDesc>& cube);
+    static Cuboid get_base_cuboid(const std::shared_ptr<CubeDesc>& cube);
 
     inline std::shared_ptr<CubeDesc> get_cube_desc() const { return cube_desc_; }
     inline const std::vector<std::shared_ptr<TblColRef>>& get_columns() const { return dimension_columns_; }

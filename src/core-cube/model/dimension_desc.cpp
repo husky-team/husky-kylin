@@ -16,21 +16,21 @@
 
 #include <string>
 
-#include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-cube/model/cube_desc.hpp"
+#include "core-metadata/metadata/model/data_model_desc.hpp"
 
 namespace husky {
 namespace cube {
 
-void DimensionDesc::init(const std::shared_ptr<CubeDesc>& cube_desc) { 
-	cube_desc_ = cube_desc;
+void DimensionDesc::init(const std::shared_ptr<CubeDesc>& cube_desc) {
+    cube_desc_ = cube_desc;
 
-	std::shared_ptr<DataModelDesc> model = cube_desc_->get_model();
+    std::shared_ptr<DataModelDesc> model = cube_desc_->get_model();
 
-	table_ref_ = model->find_table(table_);
-	// table_ = table_ref_->get_alias();
+    table_ref_ = model->find_table(table_);
+    // table_ = table_ref_->get_alias();
 
-	column_ref_ = model->find_column(table_, column_);
+    column_ref_ = model->find_column(table_, column_);
 }
 
 }  // namespace cube

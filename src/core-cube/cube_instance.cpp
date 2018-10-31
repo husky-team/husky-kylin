@@ -25,20 +25,17 @@
 namespace husky {
 namespace cube {
 
-CubeInstance::CubeInstance(const std::string& cube_name, const std::string& cube_desc_json_path)
-    : name_(cube_name) {
+CubeInstance::CubeInstance(const std::string& cube_name, const std::string& cube_desc_json_path) : name_(cube_name) {
     cube_desc_ = std::make_shared<CubeDesc>(cube_desc_json_path);
     desc_name_ = cube_desc_->get_name();
-    cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(cube_desc_); // remember to init_cuboid_scheduler
+    cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(cube_desc_);  // remember to init_cuboid_scheduler
 }
 
 std::string CubeInstance::get_root_fact_table() {
     return cube_desc_->get_model()->get_root_fact_table_ref()->get_table_name();
 }
 
-std::set<uint64_t> CubeInstance::get_cuboids() {
-    return cuboid_scheduler_->get_all_cuboid_ids();
-}
+std::set<uint64_t> CubeInstance::get_cuboids() { return cuboid_scheduler_->get_all_cuboid_ids(); }
 
 }  //  namespace cube
 }  // namespace husky

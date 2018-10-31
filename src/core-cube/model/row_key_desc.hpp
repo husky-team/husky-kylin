@@ -15,9 +15,9 @@
 #pragma once
 
 #include <map>
-#include <vector>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "core-cube/model/row_key_col_desc.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
@@ -35,12 +35,12 @@ class RowKeyDesc {
     ~RowKeyDesc() {}
 
     inline const std::vector<std::shared_ptr<RowKeyColDesc>>& get_row_key_columns() const { return row_key_columns_; }
-    inline int get_column_bit_index(const std::shared_ptr<TblColRef> & col) const {
+    inline int get_column_bit_index(const std::shared_ptr<TblColRef>& col) const {
         return get_col_desc(col)->get_bit_index();
     }
-    inline std::shared_ptr<RowKeyColDesc> get_col_desc(const std::shared_ptr<TblColRef> & col) const {
+    inline std::shared_ptr<RowKeyColDesc> get_col_desc(const std::shared_ptr<TblColRef>& col) const {
         auto col_desc_itr = column_map_.find(col);
-        if(col_desc_itr == column_map_.end()) {
+        if (col_desc_itr == column_map_.end()) {
             // throw some exception
         }
         return col_desc_itr->second;
@@ -48,11 +48,11 @@ class RowKeyDesc {
     inline uint64_t get_full_mask() const { return full_mask_; /*TODO(tatiana)*/ }
     // inline const std::vector<int>& get_columns_need_index() const { return columns_need_index_; }
 
-    inline void set_cube_desc(const std::shared_ptr<CubeDesc> & cube_desc) {
+    inline void set_cube_desc(const std::shared_ptr<CubeDesc>& cube_desc) {
         cube_desc_ = cube_desc;
         build_row_key();
     }
-    inline void add_row_key_col(const std::shared_ptr<RowKeyColDesc> & row_key_col ){
+    inline void add_row_key_col(const std::shared_ptr<RowKeyColDesc>& row_key_col) {
         row_key_columns_.push_back(row_key_col);
     }
 

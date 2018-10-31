@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "core-metadata/metadata/model/table_ref.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
@@ -28,23 +28,22 @@ class CubeDesc;
 
 class DimensionDesc {
    public:
-    DimensionDesc(const std::string& name, const std::string& table, const std::string& column): name_(name), table_(table), column_(column){}
+    DimensionDesc(const std::string& name, const std::string& table, const std::string& column)
+        : name_(name), table_(table), column_(column) {}
     ~DimensionDesc() {}
     void init(const std::shared_ptr<CubeDesc>& cube_desc);
 
-    inline void set_table(const std::string & table) { table_ = table; }
-    inline void set_name(const std::string & name) { name_ = name; }
-    inline void set_column(const std::string & column) { column_ = column; }
-    inline void set_column_ref(const std::shared_ptr<TblColRef> & column_ref) { column_ref_ = column_ref; }
-    inline void set_table_ref(const std::shared_ptr<TableRef> & table_ref) { table_ref_ = table_ref; }
+    inline void set_table(const std::string& table) { table_ = table; }
+    inline void set_name(const std::string& name) { name_ = name; }
+    inline void set_column(const std::string& column) { column_ = column; }
+    inline void set_column_ref(const std::shared_ptr<TblColRef>& column_ref) { column_ref_ = column_ref; }
+    inline void set_table_ref(const std::shared_ptr<TableRef>& table_ref) { table_ref_ = table_ref; }
 
-    inline const std::string & get_name() const { return name_; }
-    inline const std::string & get_table() const { return table_; }
-    inline const std::string & get_column() const { return column_; }
+    inline const std::string& get_name() const { return name_; }
+    inline const std::string& get_table() const { return table_; }
+    inline const std::string& get_column() const { return column_; }
     inline std::shared_ptr<TblColRef> get_column_ref() const { return column_ref_; }
     inline std::shared_ptr<TableRef> get_table_ref() const { return table_ref_; }
-
-
 
    private:
     // from json
