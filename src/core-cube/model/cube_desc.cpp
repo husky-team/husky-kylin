@@ -44,7 +44,7 @@ CubeDesc::CubeDesc(const std::string& cube_desc_json_path) {
     json j_dimensions = j["dimensions"];
     for (json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
         std::string d_name = (*it)["name"].get<std::string>();
-        std::string d_column = (*it)["column"].get<std::string>(); // assume no derived, column must exist(not null)
+        std::string d_column = (*it)["column"].get<std::string>();  // assume no derived, column must exist(not null)
         std::string d_table = (*it)["table"].get<std::string>();
 
         dimensions_.push_back(std::make_shared<DimensionDesc>(d_name, d_table, d_column));

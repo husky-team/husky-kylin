@@ -28,7 +28,7 @@
 namespace husky {
 namespace cube {
 
-class DataModelDesc: public std::enable_shared_from_this<DataModelDesc> {
+class DataModelDesc : public std::enable_shared_from_this<DataModelDesc> {
    public:
     DataModelDesc() {}
     // DataModelDesc(const std::string& model_json_path, const std::string& table_json_path);
@@ -42,6 +42,7 @@ class DataModelDesc: public std::enable_shared_from_this<DataModelDesc> {
     std::shared_ptr<TblColRef> find_column(std::string& column) const;
 
     void init(const std::string& model_json_path, const std::string& table_json_path);
+
    private:
     /*For now, suppose only one fact table, no lookup tables*/
 
@@ -59,7 +60,8 @@ class DataModelDesc: public std::enable_shared_from_this<DataModelDesc> {
     // std::set<TableRef *> loopkupTableRefs;
     std::set<std::shared_ptr<TableRef>> all_table_refs_;
     // std::map<std::string, TableRef* > aliasMap; // alias => TableRef, a table has exactly one alias
-    std::map<std::string, std::shared_ptr<TableRef>> table_name_map_;  // name => TableRef, a table maybe referenced by multiple names
+    std::map<std::string, std::shared_ptr<TableRef>>
+        table_name_map_;  // name => TableRef, a table maybe referenced by multiple names
     // JoinsTree * joinsTree;
 
     void add_table_name(const std::string& name, const std::shared_ptr<TableRef>& ref);

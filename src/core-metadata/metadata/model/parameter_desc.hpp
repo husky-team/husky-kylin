@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
 

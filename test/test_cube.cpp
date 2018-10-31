@@ -12,27 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "glog/logging.h"
 
 #include "core-cube/cube_instance.hpp"
 #include "core-cube/model/cube_desc.hpp"
 #include "core-cube/model/dimension_desc.hpp"
-#include "core-cube/model/row_key_desc.hpp"
 #include "core-cube/model/row_key_col_desc.hpp"
+#include "core-cube/model/row_key_desc.hpp"
 
 #include "core-metadata/metadata/model/column_desc.hpp"
 #include "core-metadata/metadata/model/data_model_desc.hpp"
+#include "core-metadata/metadata/model/function_desc.hpp"
+#include "core-metadata/metadata/model/measure_desc.hpp"
 #include "core-metadata/metadata/model/model_dimension_desc.hpp"
 #include "core-metadata/metadata/model/table_desc.hpp"
 #include "core-metadata/metadata/model/table_ref.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
-#include "core-metadata/metadata/model/measure_desc.hpp"
-#include "core-metadata/metadata/model/function_desc.hpp"
-
 
 using husky::cube::ColumnDesc;
 using husky::cube::DataModelDesc;
@@ -84,20 +83,24 @@ int main(int argc, char** argv) {
     // Test Dimensions (Output by TableRef and TblColRef)
     const std::vector<std::shared_ptr<DimensionDesc>> dimensions = cube_desc->get_dimensions();
     LOG(INFO) << "Number of Dimensions in cube: " << dimensions.size();
-    LOG(INFO) << "First dimension:  Column "<<dimensions[0]->get_column_ref()->get_name()<<" in Table "<<dimensions[0]->get_table_ref()->get_alias();
-    LOG(INFO) << "First dimension:  Column "<<dimensions[1]->get_column_ref()->get_name()<<" in Table "<<dimensions[1]->get_table_ref()->get_alias();
+    LOG(INFO) << "First dimension:  Column " << dimensions[0]->get_column_ref()->get_name() << " in Table "
+              << dimensions[0]->get_table_ref()->get_alias();
+    LOG(INFO) << "First dimension:  Column " << dimensions[1]->get_column_ref()->get_name() << " in Table "
+              << dimensions[1]->get_table_ref()->get_alias();
 
     // Test Measures
     const std::vector<std::shared_ptr<MeasureDesc>> measures = cube_desc->get_measures();
     LOG(INFO) << "Number of Measures: " << measures.size();
-    LOG(INFO) << "First measures: "<< measures[0]->get_name()<<" using function "<<measures[0]->get_function()->get_expression();
-    LOG(INFO) << "Second measures: "<< measures[1]->get_name()<<" using function "<<measures[1]->get_function()->get_expression();
+    LOG(INFO) << "First measures: " << measures[0]->get_name() << " using function "
+              << measures[0]->get_function()->get_expression();
+    LOG(INFO) << "Second measures: " << measures[1]->get_name() << " using function "
+              << measures[1]->get_function()->get_expression();
 
     // Test RowKey
     std::shared_ptr<RowKeyDesc> rowkey = cube_desc->get_row_key();
     // LOG(INFO) << "Num of rowkey columns in cube: " << cube_desc->get_row_key_columns().size();
     LOG(INFO) << "Num of rowkey columns: " << rowkey->get_row_key_columns().size();
-    LOG(INFO) << "Full Mask(Base Cuboid Id): "<< rowkey->get_full_mask();
+    LOG(INFO) << "Full Mask(Base Cuboid Id): " << rowkey->get_full_mask();
     /* End of Test CubeDesc*/
 
     /* Test DataModel */

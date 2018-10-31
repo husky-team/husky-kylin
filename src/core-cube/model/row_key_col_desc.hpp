@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "core-metadata/dimension/dimension_encoding.hpp"
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
@@ -31,7 +31,7 @@ class RowKeyColDesc {
     RowKeyColDesc(const std::string& column, const std::string& encoding);
     ~RowKeyColDesc() {}
 
-    void init(int index, const std::shared_ptr<CubeDesc> & cube_desc);
+    void init(int index, const std::shared_ptr<CubeDesc>& cube_desc);
 
     inline const std::string& get_encoding() const { return encoding_; }
     inline void set_encoding(const std::string& encoding) { this->encoding_ = encoding; }

@@ -28,7 +28,7 @@ class CubeDesc;
 
 class CuboidSchedulerBase {
    public:
-    CuboidSchedulerBase(const std::shared_ptr<CubeDesc> & cube_desc) : cube_desc_(cube_desc) {}
+    CuboidSchedulerBase(const std::shared_ptr<CubeDesc>& cube_desc) : cube_desc_(cube_desc) {}
     // CuboidSchedulerBase() {}  // for test
     ~CuboidSchedulerBase() {}
 
