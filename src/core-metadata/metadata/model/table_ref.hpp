@@ -15,6 +15,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -29,10 +30,10 @@ class DataModelDesc;
 
 class TableRef {
    public:
-    TableRef(std::shared_ptr<DataModelDesc> model, const std::string& alias, TableDesc&& table);
+    TableRef(DataModelDesc* model, const std::string& alias, TableDesc&& table);
     ~TableRef() {}
 
-    std::shared_ptr<TblColRef> get_column(const std::string& name);
+    std::shared_ptr<TblColRef> get_column(const std::string& name) const;
     inline const std::string& get_alias() const { return alias_; }
     const TableDesc& get_table_desc() { return table_; }
     inline const std::string& get_table_name() const { return table_.get_name(); }
@@ -40,7 +41,7 @@ class TableRef {
    private:
     std::string model_name_;
     std::string alias_;
-    std::shared_ptr<DataModelDesc> model_;  // not owned, this is my owner
+    DataModelDesc* model_;  // not owned, this is my owner
     TableDesc table_;
     std::map<std::string, std::shared_ptr<TblColRef>> columns_;
 };

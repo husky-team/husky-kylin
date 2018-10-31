@@ -28,14 +28,13 @@
 namespace husky {
 namespace cube {
 
-class DataModelDesc : public std::enable_shared_from_this<DataModelDesc> {
+class DataModelDesc {
    public:
     DataModelDesc() {}
-    // DataModelDesc(const std::string& model_json_path, const std::string& table_json_path);
     ~DataModelDesc() {}
 
     inline const std::string& get_name() const { return name_; }
-    std::shared_ptr<TableRef> get_root_fact_table_ref() const { return root_fact_table_ref_; }
+    inline const std::shared_ptr<TableRef>& get_root_fact_table_ref() const { return root_fact_table_ref_; }
 
     std::shared_ptr<TableRef> find_table(std::string& table) const;  // has side effect on table
     std::shared_ptr<TblColRef> find_column(std::string& table, std::string& column) const;
