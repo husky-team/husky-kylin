@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+#include "glog/logging.h"
+
 #include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 #include "core-cube/cuboid/tree_cuboid_scheduler.hpp"
 #include "core-cube/model/aggregation_group.hpp"
@@ -33,7 +35,7 @@
 namespace husky {
 namespace cube {
 
-class CubeDesc : public std::enable_shared_from_this<CubeDesc> {
+class CubeDesc {
    public:
     explicit CubeDesc(const std::string& cubeDescJsonPath);
     CubeDesc() {}
@@ -50,13 +52,13 @@ class CubeDesc : public std::enable_shared_from_this<CubeDesc> {
     // inline std::vector<std::shared_ptr<RowKeyColDesc>> get_row_key_columns() const { return row_key_columns_; } //
     // for test only
     inline std::list<AggregationGroup*> get_aggregation_groups() { return std::list<AggregationGroup*>(); }
-    inline std::shared_ptr<CuboidSchedulerBase> get_initial_cuboid_scheduler() {
-        if (cuboid_scheduler_ == nullptr)
-            cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(shared_from_this());
+    inline void set_cuboid_scheduler(CuboidSchedulerBase* cuboid_scheduler) { cuboid_scheduler_ = cuboid_scheduler; }
+    inline CuboidSchedulerBase* get_initial_cuboid_scheduler() {
+        CHECK(cuboid_scheduler_ != nullptr);
         return cuboid_scheduler_;
     }
-    inline const std::vector<std::shared_ptr<MeasureDesc>> get_measures() const { return measures_; }
-    inline const std::vector<std::shared_ptr<DimensionDesc>> get_dimensions() const { return dimensions_; }
+    inline const std::vector<std::shared_ptr<MeasureDesc>>& get_measures() const { return measures_; }
+    inline const std::vector<std::shared_ptr<DimensionDesc>>& get_dimensions() const { return dimensions_; }
 
     /* Setters */
     inline void set_name(const std::string& name) { name_ = name; }
@@ -74,11 +76,11 @@ class CubeDesc : public std::enable_shared_from_this<CubeDesc> {
 
         // init dimensions
         for (auto dimension : dimensions_) {
-            dimension->init(shared_from_this());
+            dimension->init(this);
         }
 
         // init rowkey
-        row_key_->set_cube_desc(shared_from_this());
+        row_key_->set_cube_desc(this);
         // row_key_->set_row_key_columns(row_key_columns_);
     }
 
@@ -92,7 +94,8 @@ class CubeDesc : public std::enable_shared_from_this<CubeDesc> {
     std::shared_ptr<RowKeyDesc> row_key_;
     std::vector<std::shared_ptr<DimensionDesc>> dimensions_;
     std::vector<std::shared_ptr<MeasureDesc>> measures_;
-    std::shared_ptr<CuboidSchedulerBase> cuboid_scheduler_;
+    // Avoid circular ownership
+    CuboidSchedulerBase* cuboid_scheduler_;  // not owned, owned by CubeInstance, this is one of my owners
     int parent_forward_ = 3;
     uint64_t partition_date_start_ = 0L;
     uint64_t partition_date_end_ = 3153600000000L;

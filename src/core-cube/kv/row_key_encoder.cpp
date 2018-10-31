@@ -13,12 +13,17 @@
 // limitations under the License.
 
 #include "core-cube/kv/row_key_encoder.hpp"
+
+#include <map>
+#include <string>
+#include <vector>
+
 #include "core-metadata/metadata/model/tbl_col_ref.hpp"
 
 namespace husky {
 namespace cube {
 
-RowKeyEncoder::RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, std::shared_ptr<Cuboid> cuboid)
+RowKeyEncoder::RowKeyEncoder(const std::shared_ptr<CubeDesc>& cube_desc, const std::shared_ptr<Cuboid>& cuboid)
     : AbstractRowKeyEncoder(cube_desc, cuboid) {
     for (auto const& column : cuboid->get_columns()) {
         body_length_ += 4;  // hard code! Should be different by dimension type (int, data, string, ...)

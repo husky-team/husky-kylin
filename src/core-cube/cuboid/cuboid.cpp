@@ -15,6 +15,7 @@
 #include "core-cube/cuboid/cuboid.hpp"
 
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "core-cube/cuboid/cuboid_scheduler_base.hpp"
@@ -40,6 +41,12 @@ Cuboid Cuboid::find_cuboid(const std::shared_ptr<CuboidSchedulerBase>& cuboid_sc
     return Cuboid::find_by_long_id(cuboid_scheduler, cuboid_id);
 }
 
+Cuboid Cuboid::find_cuboid(CuboidSchedulerBase* cuboid_scheduler,
+                           const std::set<std::shared_ptr<TblColRef>>& dimensions) {
+    uint64_t cuboid_id = to_cuboid_id(cuboid_scheduler->get_cube_desc(), dimensions);
+    return Cuboid::find_by_long_id(cuboid_scheduler, cuboid_id);
+}
+
 Cuboid Cuboid::find_by_bytes_id(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler,
                                 const std::vector<unsigned char>& cuboid_id) {
     return find_by_long_id(cuboid_scheduler, utils::bytes_to_long(cuboid_id));
@@ -50,9 +57,16 @@ Cuboid Cuboid::find_by_long_id(const std::shared_ptr<CuboidSchedulerBase>& cuboi
     return Cuboid(cuboid_scheduler->get_cube_desc(), cuboid_id, valid_cuboid_id);
 }
 
+Cuboid Cuboid::find_by_long_id(CuboidSchedulerBase* cuboid_scheduler, uint64_t cuboid_id) {
+    uint64_t valid_cuboid_id = cuboid_scheduler->find_best_match_cuboid(cuboid_id);
+    return Cuboid(cuboid_scheduler->get_cube_desc(), cuboid_id, valid_cuboid_id);
+}
+
 uint64_t Cuboid::get_base_cuboid_id(const std::shared_ptr<CubeDesc>& cube) {
     return cube->get_row_key()->get_full_mask();
 }
+
+uint64_t Cuboid::get_base_cuboid_id(CubeDesc* cube) { return cube->get_row_key()->get_full_mask(); }
 
 Cuboid Cuboid::get_base_cuboid(const std::shared_ptr<CubeDesc>& cube) {
     return find_by_long_id(cube->get_initial_cuboid_scheduler(), get_base_cuboid_id(cube));

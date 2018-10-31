@@ -31,7 +31,7 @@ class DimensionDesc {
     DimensionDesc(const std::string& name, const std::string& table, const std::string& column)
         : name_(name), table_(table), column_(column) {}
     ~DimensionDesc() {}
-    void init(const std::shared_ptr<CubeDesc>& cube_desc);
+    void init(CubeDesc* cube_desc);
 
     inline void set_table(const std::string& table) { table_ = table; }
     inline void set_name(const std::string& name) { name_ = name; }
@@ -52,7 +52,7 @@ class DimensionDesc {
     std::string column_;
 
     // std::vector<std::string> derived;
-    std::shared_ptr<CubeDesc> cube_desc_;
+    CubeDesc* cube_desc_;  // not owned, this is my owner
 
     // computed attributes
     std::shared_ptr<TableRef> table_ref_;

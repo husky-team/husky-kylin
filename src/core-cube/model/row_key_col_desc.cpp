@@ -27,7 +27,7 @@ RowKeyColDesc::RowKeyColDesc(const std::string& column, const std::string& encod
     this->encoding_ = encoding;
 }
 
-void RowKeyColDesc::init(int index, const std::shared_ptr<CubeDesc>& cube_desc) {
+void RowKeyColDesc::init(int index, CubeDesc* cube_desc) {
     bit_index_ = index;
     col_ref_ = cube_desc->get_model()->find_column(column_);
     column_ = col_ref_->get_identity();

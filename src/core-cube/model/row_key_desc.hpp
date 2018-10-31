@@ -29,7 +29,7 @@ class CubeDesc;
 
 class RowKeyDesc {
    public:
-    explicit RowKeyDesc() {
+    RowKeyDesc() {
         // init_columns_need_index(); // about columns using "dictionary"
     }
     ~RowKeyDesc() {}
@@ -45,10 +45,10 @@ class RowKeyDesc {
         }
         return col_desc_itr->second;
     }
-    inline uint64_t get_full_mask() const { return full_mask_; /*TODO(tatiana)*/ }
+    inline uint64_t get_full_mask() const { return full_mask_; }
     // inline const std::vector<int>& get_columns_need_index() const { return columns_need_index_; }
 
-    inline void set_cube_desc(const std::shared_ptr<CubeDesc>& cube_desc) {
+    inline void set_cube_desc(CubeDesc* cube_desc) {
         cube_desc_ = cube_desc;
         build_row_key();
     }
@@ -61,7 +61,7 @@ class RowKeyDesc {
     void build_row_key();
 
     std::vector<std::shared_ptr<RowKeyColDesc>> row_key_columns_;
-    std::shared_ptr<CubeDesc> cube_desc_;
+    CubeDesc* cube_desc_;  // not owned, this is my owner
     uint64_t full_mask_;
     std::map<std::shared_ptr<TblColRef>, std::shared_ptr<RowKeyColDesc>> column_map_;
     // std::vector<int> columns_need_index_;
