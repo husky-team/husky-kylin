@@ -12,8 +12,6 @@ addons:
     packages:
       - build-essential
       - cmake
-      - gcc-4.9
-      - g++-4.9
       - gcc-6
       - g++-6
       - clang-format-3.9
@@ -65,8 +63,6 @@ before_script:
 
 matrix:
   include:
-    - compiler: "gcc-4.9"
-      env: CC=gcc-4.9 CXX=g++-4.9
     - compiler: "gcc-6"
       env: CC=gcc-6 CXX=g++-6
 

@@ -39,8 +39,8 @@ target_link_libraries(TestJSON ${husky-kylin})
 target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
 add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})
 
-# TestTable
-add_executable(TestTable test_table.cpp)
-target_link_libraries(TestTable ${husky-kylin})
-target_link_libraries(TestTable ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
-add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})
+# CubingByLayer
+add_executable(CubingByLayer cubing_by_layer.cpp)
+target_link_libraries(CubingByLayer ${husky-kylin})
+target_link_libraries(CubingByLayer ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
+add_dependencies(CubingByLayer ${EXTERNAL_DEPENDENCIES})

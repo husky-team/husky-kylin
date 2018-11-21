@@ -110,6 +110,7 @@ class PARQUETHdfsSource final : public parquet::RandomAccessSource {
         if (nbytes == Read(nbytes, out)) {
             return std::shared_ptr<arrow::Buffer>(new arrow::Buffer(out, Size()));
         }
+        return nullptr;
     };
 
     void Close() override{};

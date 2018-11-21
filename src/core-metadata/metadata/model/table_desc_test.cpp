@@ -14,10 +14,15 @@
 
 #include "core-metadata/metadata/model/table_desc.hpp"
 
+#include <fstream>
+
 #include "gtest/gtest.h"
+#include "nlohmann/json.hpp"
 
 namespace husky {
 namespace {
+
+using nlohmann::json;
 
 class TestTableDesc : public testing::Test {
    public:
@@ -30,7 +35,10 @@ class TestTableDesc : public testing::Test {
 };
 
 TEST_F(TestTableDesc, Constructor) {
-    auto tableDesc = new cube::TableDesc("./resources/table.json");
+    auto filename = "./resources/table.json";
+    std::ifstream iss(filename);
+    auto jtable = json::parse(iss);
+    auto tableDesc = new cube::TableDesc(jtable);
     EXPECT_TRUE(tableDesc != nullptr);
 }
 

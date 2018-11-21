@@ -26,6 +26,25 @@
 #include "table/table_reader_factory.hpp"
 #include "utils/print_string.hpp"
 
+/* Example Config
+ * master_host=proj99
+ * master_port=23215
+ * comm_port=12314
+ *
+ * hdfs_namenode=proj99
+ * hdfs_namenode_port=9000
+ *
+ * serve=0
+ *
+ * meta_url=kylin_metadata@hdfs,path=hdfs://localhost:9000/kylin/kylin_metadata/metadata/69a4e318-c3ff-45d4-bfc3-2dcaeaa164d7
+ * hive_table=hdfs:///kylin/kylin_metadata/kylin-86dffb72-3bf9-4150-b9bd-52332d9a7af5/kylin_intermediate_simple_sales_model_69a4e318_c3ff_45d4_bfc3_2dcaeaa164d7
+ * table_format=ORC
+ * output_path=hdfs://proj99:9000/kylin/kylin_metadata/kylin-86dffb72-3bf9-4150-b9bd-52332d9a7af5/simple_sales_model/cuboid/
+ *
+ * [worker]
+ * info=w1:4
+ */
+
 using husky::Context;
 using husky::cube::CubeInstance;
 using husky::cube::Cuboid;

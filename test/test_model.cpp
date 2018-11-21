@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
 
     // For testing only
     std::shared_ptr<DataModelDesc> model = std::make_shared<DataModelDesc>();
+    // FIXME(tatiana): json instead of local path
     model->init("./resources/model.json", "./resources/table.json");
     // LOG(INFO)<<"The model owner: "<<model->getOwner()<<std::endl;
     // Test DataModelDesc
