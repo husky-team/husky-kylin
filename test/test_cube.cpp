@@ -57,6 +57,7 @@ int main(int argc, char** argv) {
     std::string model_json_path = "./resources/model.json";
     std::string table_json_path = "./resources/table.json";
 
+    // FIXME(tatiana): json instead of path
     CubeInstance cube_instance = CubeInstance(cube_instance_name, cube_desc_json_path);
     std::shared_ptr<CubeDesc> cube_desc = cube_instance.get_cube_desc();
     cube_desc->init(model_json_path, table_json_path);
