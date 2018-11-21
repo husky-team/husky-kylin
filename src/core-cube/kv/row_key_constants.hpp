@@ -20,7 +20,9 @@ namespace cube {
 class RowKeyConstants {
    public:
     static const int ROWKEY_COL_DEFAULT_LENGTH = 256;
-    static const int ROWKEY_CUBOIDID_LENGTH = 8;     // uint64_t
+    static const int ROWKEY_CUBOIDID_LENGTH = 8;  // uint64_t
+    static const int ROWKEY_SHARDID_LEN = 2;      // row key shard length
+    static const int ROWKEY_SHARD_AND_CUBOID_LEN = ROWKEY_CUBOIDID_LENGTH + ROWKEY_SHARDID_LEN;
     static const int ROWKEY_BUFFER_SIZE = 65 * 256;  // a little more than 64 dimensions * 256 bytes each
 };
 

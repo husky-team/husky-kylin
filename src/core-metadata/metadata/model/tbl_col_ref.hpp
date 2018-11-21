@@ -25,14 +25,14 @@ class TableRef;
 
 class TblColRef {
    public:
-    explicit TblColRef(ColumnDesc* column);
+    // TODO(tatiana): is this constructor used?
+    explicit TblColRef(ColumnDesc* column) : column_(column) {}
     TblColRef(TableRef* table, ColumnDesc* column);
-    ~TblColRef() {}
 
     ColumnDesc* get_column_desc() { return column_; }
     inline const std::string& get_name() const { return column_->get_name(); }
     inline const std::string& get_identity() const { return identity_; }
-    inline const std::string& get_table_alias() const;
+    const std::string& get_table_alias() const;
 
    private:
     TableRef* table_;     // not owned, this is my owner

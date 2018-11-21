@@ -18,6 +18,9 @@
 #include <set>
 #include <string>
 
+#include "nlohmann/json.hpp"
+
+#include "core-cube/cuboid/cuboid_scheduler.hpp"
 #include "core-cube/cuboid/tree_cuboid_scheduler.hpp"
 #include "core-cube/model/cube_desc.hpp"
 #include "core-metadata/metadata/model/measure_desc.hpp"
@@ -25,10 +28,16 @@
 namespace husky {
 namespace cube {
 
-CubeInstance::CubeInstance(const std::string& cube_name, const std::string& cube_desc_json_path) : name_(cube_name) {
-    cube_desc_ = std::make_shared<CubeDesc>(cube_desc_json_path);
+CubeInstance::CubeInstance(const std::string& cube_name, const json& cube_desc_json, bool tree_scheduler)
+    : name_(cube_name) {
+    cube_desc_ = std::make_shared<CubeDesc>(cube_desc_json);
     desc_name_ = cube_desc_->get_name();
-    cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(cube_desc_);  // remember to init_cuboid_scheduler
+    if (tree_scheduler) {
+        // remember to init_cuboid_scheduler
+        cuboid_scheduler_ = std::make_shared<TreeCuboidScheduler>(cube_desc_);
+    } else {
+        cuboid_scheduler_ = std::make_shared<CuboidScheduler>(cube_desc_);
+    }
     cube_desc_->set_cuboid_scheduler(cuboid_scheduler_.get());
 }
 

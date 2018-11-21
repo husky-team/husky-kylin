@@ -15,15 +15,37 @@
 #include "core-metadata/metadata/model/parameter_desc.hpp"
 
 #include <string>
+#include <vector>
+
+#include "nlohmann/json.hpp"
 
 #include "core-metadata/metadata/model/function_desc.hpp"
 
 namespace husky {
 namespace cube {
 
-ParameterDesc::ParameterDesc(const std::string& type, const std::string& value) : type_(type), value_(value) {}
+ParameterDesc::ParameterDesc(const json& j_parameter)
+    : type_(j_parameter["type"].get<std::string>()), value_(j_parameter["value"].get<std::string>()) {
+    if (j_parameter.find("next_parameter") != j_parameter.end()) {
+        next_parameter_ = std::make_unique<ParameterDesc>(j_parameter["next_parameter"]);
+    }
+}
 
 bool ParameterDesc::is_column_type() const { return type_.compare(FunctionDesc::PARAMETER_TYPE_COLUMN) == 0; }
+
+const std::vector<std::shared_ptr<TblColRef>>& ParameterDesc::get_col_refs() {
+    if (!col_ref_collected) {
+        col_ref_collected = true;
+        auto p = this;
+        while (p != nullptr) {
+            if (p->is_column_type()) {
+                all_col_refs_including_nexts_.push_back(p->get_col_ref());
+            }
+            p = p->next_parameter().get();
+        }
+    }
+    return all_col_refs_including_nexts_;
+}
 
 }  // namespace cube
 }  // namespace husky

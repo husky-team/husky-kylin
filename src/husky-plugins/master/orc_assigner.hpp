@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "hdfs/hdfs.h"
 #include "orc/OrcFile.hh"

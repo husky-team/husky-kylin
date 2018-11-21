@@ -15,8 +15,8 @@
 #include "core-metadata/dimension/integer_dim_enc.hpp"
 
 #include <string>
-
 #include <vector>
+
 #include "glog/logging.h"
 
 #include "utils/utils.hpp"
@@ -34,14 +34,14 @@ const std::vector<uint64_t> TAIL = {
 const char IntegerDimEnc::ENCODING_NAME[] = "integer";
 
 IntegerDimEnc::IntegerDimEnc(int len) : fixed_len_(len) {
-    CHECK(len > 0 && len < CAP.size()) << "[IntegerDimEnc] len " << len << " exceeds valid scope (0, " << CAP.size()
-                                       << ")";
+    CHECK_EQ(true, len > 0 && len < CAP.size()) << "[IntegerDimEnc] len " << len << " exceeds valid scope (0, "
+                                                << CAP.size() << ")";
 }
 
 /** encode given value to bytes, note the NULL convention */
-void IntegerDimEnc::encode(const std::string& valueStr, std::vector<unsigned char> output, int outputOffset) {
+void IntegerDimEnc::encode(const std::string& valueStr, std::vector<unsigned char>& output, int outputOffset) {
     // if (valueStr.empty()) {}
-    uint64_t integer = std::stol(valueStr);
+    uint64_t integer = std::stoll(valueStr);
     utils::write_long(integer + CAP[fixed_len_], output, outputOffset, fixed_len_);
 }
 
@@ -54,8 +54,8 @@ std::string IntegerDimEnc::decode(std::vector<unsigned char> bytes, int offset, 
     bool positive = (integer & ((0x80L) << ((fixed_len_ - 1) << 3))) == 0;
     if (!positive) {
         integer |= (~MASK[fixed_len_]);
+        return std::to_string((int64_t) integer);
     }
-
     return std::to_string(integer);
 }
 

@@ -40,7 +40,7 @@ class ORCFileSplitter final : public FileSplitterBase {
     // ---------------is ture if can directly read the next block using the
     // current file
     boost::string_ref fetch_block(bool is_next = false) override;
-    int read_block(const std::string& fn) override {}
+    int read_block(const std::string& fn) override { return 0; }
     // get the starting position of splitter
     // just to keep consistent with LineInputFormat
     inline size_t get_offset() { return offset_; }
@@ -67,6 +67,6 @@ class ORCFileSplitter final : public FileSplitterBase {
     hdfsFS fs_;
 };
 
-}  // namespace husky
 }  // namespace io
+}  // namespace husky
 #endif

@@ -78,7 +78,8 @@ class HDFSColumnPrinter : public ColumnPrinter {
 
     std::vector<ColumnPrinter*> fieldPrinter;
 };
-}
+
+}  // namespace orc
 
 namespace husky {
 namespace io {

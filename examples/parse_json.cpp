@@ -19,13 +19,14 @@
 
 #include "base/log.hpp"
 #include "core/engine.hpp"
-#include "io/input/inputformat_store.hpp"
+
+#include "husky-plugins/io/input/file_broadcast_inputformat.hpp"
 
 using JSON = nlohmann::json;
 
 void execute() {
     // set chunk size to max
-    auto& infmt = husky::io::InputFormatStore::create_chunk_inputformat(~0u >> 1);
+    husky::io::FileBroadcastInputFormat infmt;
     infmt.set_input(husky::Context::get_param("input"));
     auto parse_json = [&](boost::string_ref& chunk) { husky::LOG_I << JSON::parse(chunk).dump(1, ' ', true); };
     husky::load(infmt, parse_json);

@@ -42,7 +42,7 @@ class PARQUETFileSplitter final : public FileSplitterBase {
     // current file
     boost::string_ref fetch_block(bool is_next = false) override;
 
-    int read_block(const std::string& fn) override {}
+    int read_block(const std::string& fn) override { return 0; }
 
     // get the starting position of splitter
     // just to keep consistent with LineInputFormat

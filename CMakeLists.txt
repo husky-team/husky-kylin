@@ -39,12 +39,15 @@ include(dep)
 
 include_directories(src)
 
+add_definitions(${HUSKY_EXTERNAL_DEFINITION})
+
 ### Directories
 # Sources
 add_subdirectory(src/core-cube)
 add_subdirectory(src/core-metadata)
 add_subdirectory(src/husky-plugins)
 add_subdirectory(src/utils)
+add_subdirectory(src/algorithm)
 
 # Examples & Tests
 add_subdirectory(examples)

@@ -32,7 +32,16 @@ namespace cube {
 Cuboid::Cuboid(const std::shared_ptr<CubeDesc>& cube_desc, uint64_t original_id, uint64_t valid_id)
     : cube_desc_(cube_desc), input_id_(original_id), id_(valid_id) {
     id_bytes_ = utils::long_to_bytes(id_);
-    dimension_columns_ = translated_id_to_columns(id_);
+    dimension_columns_ = translated_id_to_columns(cube_desc_, id_);
+}
+
+bool Cuboid::cuboid_select_comparator(uint64_t a, uint64_t b) {
+    auto a_bits = utils::bit_count(a);
+    auto b_bits = utils::bit_count(b);
+    if (a_bits != b_bits) {
+        return a_bits < b_bits;
+    }
+    return a < b;
 }
 
 Cuboid Cuboid::find_cuboid(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler,
@@ -72,9 +81,11 @@ Cuboid Cuboid::get_base_cuboid(const std::shared_ptr<CubeDesc>& cube) {
     return find_by_long_id(cube->get_initial_cuboid_scheduler(), get_base_cuboid_id(cube));
 }
 
-std::vector<std::shared_ptr<TblColRef>> Cuboid::translated_id_to_columns(uint64_t cuboid_id) {
+std::vector<std::shared_ptr<TblColRef>> Cuboid::translated_id_to_columns(const std::shared_ptr<CubeDesc>& cube_desc,
+                                                                         uint64_t cuboid_id) {
     std::vector<std::shared_ptr<TblColRef>> dimensions;
-    std::vector<std::shared_ptr<RowKeyColDesc>> all_columns = cube_desc_->get_row_key()->get_row_key_columns();
+    std::vector<std::shared_ptr<RowKeyColDesc>> all_columns = cube_desc->get_row_key()->get_row_key_columns();
+    dimensions.reserve(all_columns.size());
     for (int i = 0; i < all_columns.size(); i++) {
         uint64_t bitmask = 1L << all_columns[i]->get_bit_index();
         if ((cuboid_id & bitmask) != 0) {

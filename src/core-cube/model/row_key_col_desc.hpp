@@ -40,19 +40,18 @@ class RowKeyColDesc {
     inline const std::string& get_index() const { return index_; }
     inline void set_index(const std::string& index) { this->index_ = index; }
     inline const std::string& get_encoding_name() const { return encoding_name_; }
-    inline const std::string& get_encoding_args() const { return encoding_args_; }
+    inline const std::vector<std::string>& get_encoding_args() const { return encoding_args_; }
     inline int get_bit_index() const { return bit_index_; }
-    inline std::shared_ptr<TblColRef> get_col_ref() { return col_ref_; }
+    inline const std::shared_ptr<TblColRef>& get_col_ref() const { return col_ref_; }
 
    private:
     std::string column_;
     std::string encoding_;
     std::string index_;
 
-    // computed attributes (but only encoding integers for now)
+    // computed attributes
     std::string encoding_name_;
-    std::string encoding_args_;  // interger size
-    // std::vector<std::string> encodingArgs;
+    std::vector<std::string> encoding_args_;
     int bit_index_;
     std::shared_ptr<TblColRef> col_ref_;
 };

@@ -33,12 +33,9 @@ void RowKeyColDesc::init(int index, CubeDesc* cube_desc) {
     column_ = col_ref_->get_identity();
 
     std::vector<std::string> encoding_params = DimensionEncoding::parse_encoding_conf(encoding_);
-    if (encoding_params.size() == 1) {
-        // no args
-        encoding_name_ = encoding_params[0];
-    } else if (encoding_params.size() > 1) {
-        encoding_name_ = encoding_params[0];
-        encoding_args_ = encoding_params[1];
+    encoding_name_ = encoding_params[0];
+    if (encoding_params.size() > 1) {
+        encoding_args_.insert(encoding_args_.end(), encoding_params.begin() + 1, encoding_params.end());
     }
 }
 

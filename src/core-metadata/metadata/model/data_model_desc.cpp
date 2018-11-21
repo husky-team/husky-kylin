@@ -14,15 +14,15 @@
 
 #include "core-metadata/metadata/model/data_model_desc.hpp"
 
-#include <fstream>
+#include <map>
 #include <memory>
 #include <set>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "boost/algorithm/string.hpp"
+#include "glog/logging.h"
 #include "nlohmann/json.hpp"
 
 #include "core-metadata/metadata/model/model_dimension_desc.hpp"
@@ -36,10 +36,7 @@ namespace cube {
 using json = nlohmann::json;
 
 void DataModelDesc::add_table_name(const std::string& name, const std::shared_ptr<TableRef>& ref) {
-    if (table_name_map_.count(name)) {
-        table_name_map_.insert(std::make_pair(name, std::shared_ptr<TableRef>()));
-    } else {
-        table_name_map_.insert(std::make_pair(name, ref));
+    if (table_name_map_.insert(std::make_pair(name, ref)).second) {
         all_table_refs_.insert(ref);
     }
 }
@@ -57,9 +54,9 @@ void DataModelDesc::add_table_name(const std::string& name, const std::shared_pt
 
 std::shared_ptr<TableRef> DataModelDesc::find_table(std::string& table) const {
     boost::to_upper(table);
-    std::shared_ptr<TableRef> result = table_name_map_.find(table)->second;
-    // error detection: result == NULL
-    return result;
+    auto pos = table_name_map_.find(table);
+    CHECK_EQ(true, pos != table_name_map_.end());
+    return pos->second;
 }
 
 std::shared_ptr<TblColRef> DataModelDesc::find_column(std::string& table, std::string& column) const {
@@ -94,25 +91,53 @@ std::shared_ptr<TblColRef> DataModelDesc::find_column(std::string& column) const
     return result;
 }
 
-void DataModelDesc::init(const std::string& model_json_path, const std::string& table_json_path) {
-    std::ifstream ifs(model_json_path);
-    json j = json::parse(ifs);
-
-    name_ = j["name"].get<std::string>();
-    // owner = j["owner"].get<std::string>();
-    root_fact_table_ = j["fact_table"].get<std::string>();
-
-    // init root_fact_table_ref_
-    TableDesc root_fact_table_desc(table_json_path);
+void DataModelDesc::init_root_fact_table_ref(const json& table_json) {
+    TableDesc root_fact_table_desc(table_json);
     std::string root_fact_table_name = root_fact_table_desc.get_name();
     root_fact_table_ref_ = std::make_shared<TableRef>(this, root_fact_table_name, std::move(root_fact_table_desc));
     add_table_name(root_fact_table_name, root_fact_table_ref_);
+}
+
+void DataModelDesc::init_lookup_table_refs(const json& lookups,
+                                           const std::map<std::string, std::shared_ptr<json>>& table_jsons) {
+    for (auto& lookup : lookups) {
+        auto lookup_table = lookup["table"].get<std::string>();
+        auto pos = table_jsons.find(lookup_table);
+        CHECK_EQ(true, pos != table_jsons.end()) << "Cannot find lookup table json " << lookup_table;
+        TableDesc lookup_table_desc(*pos->second);
+        auto name = lookup_table_desc.get_name();
+        auto alias = (lookup.find("alias") == lookup.end()) ? name : lookup["alias"].get<std::string>();
+
+        // join keys
+        auto foreign_key_json = lookup["join"]["foreign_key"];
+        std::vector<std::string> foreign_keys;
+        for (auto& foreign_key : foreign_key_json) {
+            foreign_keys.push_back(foreign_key.get<std::string>());
+        }
+        auto ref = std::make_shared<TableRef>(this, alias, std::move(lookup_table_desc));
+        ref->set_foreign_keys(std::move(foreign_keys));
+        add_table_name(name, ref);
+        add_table_name(alias, ref);
+    }
+}
+
+void DataModelDesc::init(const json& model_json, const std::map<std::string, std::shared_ptr<json>>& table_jsons) {
+    name_ = model_json["name"].get<std::string>();
+    // owner = model_json["owner"].get<std::string>();
+
+    // init root_fact_table_ref_
+    root_fact_table_ = model_json["fact_table"].get<std::string>();
+    auto pos = table_jsons.find(root_fact_table_);
+    CHECK_EQ(true, pos != table_jsons.end()) << "Cannot find fact table json " << root_fact_table_;
+    init_root_fact_table_ref(*pos->second);
+
+    // lookup tables
+    init_lookup_table_refs(model_json["lookups"], table_jsons);
 
     // init dimensions
-    json j_dimensions = j["dimensions"];
+    json j_dimensions = model_json["dimensions"];
     for (json::iterator it = j_dimensions.begin(); it != j_dimensions.end(); it++) {
         std::string table = (*it)["table"].get<std::string>();
-        // should add_table_name(table) ? need more table.json to test!
 
         json j_columns = (*it)["columns"];
         std::vector<std::string> columns;
@@ -124,17 +149,12 @@ void DataModelDesc::init(const std::string& model_json_path, const std::string& 
     }
 
     // init metrics
-    json j_metrics = j["metrics"];
+    json j_metrics = model_json["metrics"];
     for (json::iterator it = j_metrics.begin(); it != j_metrics.end(); it++) {
         std::string metric_name = (*it).get<std::string>();
         metrics_.push_back(find_column(metric_name)->get_identity());
     }
 }
-
-// void DataModelDesc::initRootTable(TableDesc * rootTableDesc) {
-//   root_fact_table_ref_ = new TableRef(this, rootDesc.get_name(), rootDesc);
-//   add_table_name(rootTableDesc->get_name(), root_fact_table_ref_);
-// }
 
 // void DataModelDesc::initDimensionAndMetrics();
 

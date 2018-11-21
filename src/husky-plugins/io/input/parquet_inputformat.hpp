@@ -36,7 +36,7 @@ class PARQUETInputFormat : public husky::io::InputFormatBase {
 
     virtual void set_input(const std::string& url);
     virtual bool next(boost::string_ref& ref);
-    virtual bool is_setup() const override;
+    bool is_setup() const override;
 
    protected:
     bool fetch_new_block();

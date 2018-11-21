@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "nlohmann/json.hpp"
+
 #include "core-cube/cuboid/cuboid_scheduler_base.hpp"
 #include "core-cube/model/cube_desc.hpp"
 #include "core-metadata/metadata/model/measure_desc.hpp"
@@ -26,10 +28,11 @@
 namespace husky {
 namespace cube {
 
+using nlohmann::json;
+
 class CubeInstance {
    public:
-    CubeInstance(const std::string& cube_name, const std::string& cube_desc_json_path);
-    ~CubeInstance() {}
+    CubeInstance(const std::string& cube_name, const json& cube_desc_json, bool tree_scheduler = true);
 
     inline int get_build_level() const { return cuboid_scheduler_->get_build_level(); }
     inline const std::shared_ptr<CubeDesc>& get_cube_desc() { return cube_desc_; }
@@ -42,7 +45,7 @@ class CubeInstance {
 
     inline void set_name(const std::string& name) { name_ = name; }
     inline void set_desc_name(const std::string& desc_name) { desc_name_ = desc_name; }
-    inline void init_cuboid_scheduler(std::vector<uint64_t>& all_cuboid_ids) {
+    inline void init_cuboid_scheduler(std::vector<uint64_t> all_cuboid_ids = std::vector<uint64_t>()) {
         cuboid_scheduler_->init_cuboid_tree(all_cuboid_ids);
     }
 

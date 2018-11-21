@@ -29,10 +29,23 @@ const std::set<std::string> DataType::STRING_FAMILY{"varchar", "char"};
 DataType::DataType(const std::string& name, int precision, int scale)
     : name_(name), precision_(precision), scale_(scale) {}
 
-DataType::DataType(const std::string& dataType) {
-    name_ = dataType;
+DataType::DataType(const std::string& data_type) {
+    name_ = data_type;
     precision_ = -1;
     scale_ = -1;
+
+    auto pos = data_type.find("decimal");
+    if (pos != name_.npos) {
+        name_ = "decimal";
+        pos = data_type.find("(");
+        if (pos != name_.npos) {
+            auto comma = data_type.find(",");
+            precision_ = std::stoi(data_type.substr(pos + 1, comma - pos - 1));
+            pos = data_type.find(")");
+            scale_ = std::stoi(data_type.substr(comma + 1, pos - comma - 1));
+        }
+        return;
+    }
 
     // kylin's default precision
     if (name_.compare("char") == 0) {

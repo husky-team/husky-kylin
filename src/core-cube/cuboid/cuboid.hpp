@@ -32,6 +32,12 @@ class Cuboid {
     Cuboid(const std::shared_ptr<CubeDesc>& cube_desc, uint64_t original_id, uint64_t valid_id);
     ~Cuboid() {}
 
+    static bool cuboid_select_comparator(uint64_t a, uint64_t b);
+
+    inline static std::shared_ptr<Cuboid> find_for_mandatory(const std::shared_ptr<CubeDesc>& cube_desc,
+                                                             uint64_t cuboid_id) {
+        return std::make_shared<Cuboid>(cube_desc, cuboid_id, cuboid_id);
+    }
     static Cuboid find_cuboid(const std::shared_ptr<CuboidSchedulerBase>& cuboid_scheduler,
                               const std::set<std::shared_ptr<TblColRef>>& dimensions);
     static Cuboid find_cuboid(CuboidSchedulerBase* cuboid_scheduler,
@@ -53,7 +59,8 @@ class Cuboid {
     inline uint64_t get_input_id() const { return input_id_; }
 
    protected:
-    std::vector<std::shared_ptr<TblColRef>> translated_id_to_columns(uint64_t cuboid_id);
+    static std::vector<std::shared_ptr<TblColRef>> translated_id_to_columns(const std::shared_ptr<CubeDesc>& cube_desc,
+                                                                            uint64_t cuboid_id);
 
    private:
     std::shared_ptr<CubeDesc> cube_desc_;

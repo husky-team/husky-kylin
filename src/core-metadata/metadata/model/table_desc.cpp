@@ -24,16 +24,11 @@
 namespace husky {
 namespace cube {
 
-using json = nlohmann::json;
+using nlohmann::json;
 
-TableDesc::TableDesc(const std::string& table_json_path) {
-    // std::string table_json_path = "table.json"; // should be in hdfs
-    std::ifstream ifs(table_json_path);
-    json j = json::parse(ifs);
-
-    // for now, only support a fact table
-    name_ = j["name"].get<std::string>();
-    json j_columns = j["columns"];
+TableDesc::TableDesc(const json& table_json) {
+    name_ = table_json["name"].get<std::string>();
+    json j_columns = table_json["columns"];
     for (json::iterator it = j_columns.begin(); it != j_columns.end(); it++) {
         std::string col_id = (*it)["id"].get<std::string>();
         std::string col_name = (*it)["name"].get<std::string>();

@@ -22,10 +22,8 @@
 namespace husky {
 namespace cube {
 
-TblColRef::TblColRef(ColumnDesc* column) { this->column_ = column; }
-
 TblColRef::TblColRef(TableRef* table, ColumnDesc* column) : table_(table), column_(column) {
-    this->identity_ = get_table_alias() + "." + get_name();
+    identity_ = get_table_alias() + "." + get_name();
 }
 
 const std::string& TblColRef::get_table_alias() const { return table_->get_alias(); }

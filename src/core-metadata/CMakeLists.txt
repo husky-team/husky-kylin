@@ -17,11 +17,11 @@ set(husky-kylin husky extension-husky-io extension-husky-master husky-kylin-util
 
 file(GLOB core-metadata-src
   dimension/integer_dim_enc.cpp
+  dimension/date_dim_enc.cpp
   metadata/datatype/data_type.cpp
   metadata/model/column_desc.cpp
   metadata/model/data_model_desc.cpp
   metadata/model/function_desc.cpp
-  metadata/model/measure_desc.cpp
   metadata/model/model_dimension_desc.cpp
   metadata/model/parameter_desc.cpp
   metadata/model/table_desc.cpp

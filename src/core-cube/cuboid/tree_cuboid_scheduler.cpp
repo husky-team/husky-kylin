@@ -52,7 +52,7 @@ std::set<uint64_t> TreeCuboidScheduler::CuboidTree::get_all_cuboid_ids() const {
 
 std::vector<uint64_t> TreeCuboidScheduler::CuboidTree::get_spanning_cuboid(uint64_t cuboid_id) const {
     auto pos = index_.find(cuboid_id);
-    CHECK(pos != index_.end()) << "[CuboidTree] Cannot find cuboid with id " << cuboid_id;
+    CHECK_EQ(true, pos != index_.end()) << "[CuboidTree] Cannot find cuboid with id " << cuboid_id;
     TreeNode* node = pos->second;
 
     std::vector<uint64_t> result;
