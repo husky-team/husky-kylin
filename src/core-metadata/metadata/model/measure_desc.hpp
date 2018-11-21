@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 
+#include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-metadata/metadata/model/function_desc.hpp"
 
 namespace husky {
@@ -24,13 +25,15 @@ namespace cube {
 
 class MeasureDesc {
    public:
-    MeasureDesc(const std::string& name, std::shared_ptr<FunctionDesc>& function);
-    ~MeasureDesc() {}
+    MeasureDesc(const std::string& name, const std::shared_ptr<FunctionDesc>& function)
+        : name_(name), function_(function) {}
 
-    std::string get_name() const { return name_; }
-    void set_name(const std::string& name) { name_ = name; }
-    std::shared_ptr<FunctionDesc> get_function() const { return function_; }
-    void set_function(const std::shared_ptr<FunctionDesc>& function) { function_ = std::move(function); }
+    inline const std::string& get_name() const { return name_; }
+    inline void set_name(const std::string& name) { name_ = name; }
+    inline const std::shared_ptr<FunctionDesc>& get_function() const { return function_; }
+    inline void set_function(const std::shared_ptr<FunctionDesc>& function) { function_ = function; }
+
+    inline void init(const DataModelDesc& model) const { function_->init(model); }
 
    private:
     std::string name_;

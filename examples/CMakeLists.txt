@@ -14,7 +14,7 @@
 
 include_directories(${PROJECT_SOURCE_DIR} ${HUSKY_EXTERNAL_INCLUDE} ${EXTERNAL_INCLUDE})
 
-set(husky-kylin husky extension-husky-io extension-husky-master)
+set(husky-kylin husky extension-husky-io extension-husky-master core-metadata core-cube algorithm)
 
 ### Applications
 
@@ -35,12 +35,12 @@ add_dependencies(WordCountPARQUET ${EXTERNAL_DEPENDENCIES})
 
 # TestJSON: load json from hdfs and parse
 add_executable(TestJSON parse_json.cpp)
-target_link_libraries(TestJSON husky)
-target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB})
+target_link_libraries(TestJSON ${husky-kylin})
+target_link_libraries(TestJSON ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
 add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})
 
-# ReadCSV
-add_executable(ReadCSV read_test_csv.cpp)
-target_link_libraries(ReadCSV husky)
-target_link_libraries(ReadCSV ${HUSKY_EXTERNAL_LIB})
-add_dependencies(ReadCSV ${EXTERNAL_DEPENDENCIES})
+# TestTable
+add_executable(TestTable test_table.cpp)
+target_link_libraries(TestTable ${husky-kylin})
+target_link_libraries(TestTable ${HUSKY_EXTERNAL_LIB} ${EXTERNAL_LIB})
+add_dependencies(TestJSON ${EXTERNAL_DEPENDENCIES})

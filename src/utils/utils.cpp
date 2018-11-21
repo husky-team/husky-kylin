@@ -50,8 +50,8 @@ uint64_t bytes_to_long(const std::vector<unsigned char>& bytes) {
 }
 
 void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int size) {
-    CHECK(offset > 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size() << ", offset = " << offset
-                                                       << ", size = " << size;
+    CHECK_EQ(true, offset >= 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size()
+                                                                 << ", offset = " << offset << ", size = " << size;
     for (int i = offset + size - 1; i >= offset; i--) {
         bytes[i] = (unsigned char) num;
         num >>= 8;
@@ -59,14 +59,68 @@ void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int
 }
 
 uint64_t read_long(const std::vector<unsigned char>& bytes, int offset, int size) {
-    CHECK(offset > 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size() << ", offset = " << offset
-                                                       << ", size = " << size;
+    CHECK_EQ(true, offset >= 0 && offset + size <= bytes.size()) << "bytes.size() = " << bytes.size()
+                                                                 << ", offset = " << offset << ", size = " << size;
     uint64_t integer;
     for (int i = offset, n = offset + size; i < n; i++) {
         integer <<= 8;
         integer |= (uint64_t) bytes[i] & 0xFF;
     }
     return integer;
+}
+
+int bit_count(uint64_t n) {
+    int count = 0;
+    while (n) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}
+
+uint64_t highest_one_bit(uint64_t n) {
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n |= n >> 32;
+    return n - (n >> 1);
+}
+
+uint64_t number_of_leading_zeros(uint64_t n) {
+    if (n == 0L) {
+        return 64;
+    }
+    int ret = 1;
+    int half = (int) (n >> 32);
+    if (half == 0) {
+        ret += 32;
+        half = (int) n;
+    }
+
+    if (half >> 16 == 0) {
+        ret += 16;
+        half <<= 16;
+    }
+
+    if (half >> 24 == 0) {
+        ret += 8;
+        half <<= 8;
+    }
+
+    if (half >> 28 == 0) {
+        ret += 4;
+        half <<= 4;
+    }
+
+    if (half >> 30 == 0) {
+        ret += 2;
+        half <<= 2;
+    }
+
+    ret -= half >> 31;
+    return ret;
 }
 
 }  // namespace utils

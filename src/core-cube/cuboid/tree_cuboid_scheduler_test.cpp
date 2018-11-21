@@ -77,7 +77,7 @@ TEST_F(TestTreeCuboidScheduler, GetAllCuboidIds) {
 }
 
 TEST_F(TestTreeCuboidScheduler, GetCuboidCount) {
-    // FIXME(tatiana): fake CubeDesc for testing
+    // TODO(tatiana): fake CubeDesc for testing
     // TreeCuboidScheduler scheduler(ALL_CUBOID_IDS);
     // EXPECT_EQ(scheduler.get_cuboid_count(), ALL_CUBOID_IDS.size());
 }

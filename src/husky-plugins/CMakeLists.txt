@@ -17,6 +17,7 @@ set(husky-kylin husky extension-husky-io extension-husky-master)
 
 ### IO ###
 file(GLOB io-input-src-files
+    io/input/file_broadcast_inputformat.cpp
     io/input/orc_file_splitter.cpp
     io/input/orc_inputformat.cpp
     io/input/parquet_file_splitter.cpp

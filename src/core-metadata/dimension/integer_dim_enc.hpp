@@ -30,13 +30,13 @@ class IntegerDimEnc : public DimensionEncoding {
     static const char ENCODING_NAME[];
 
     /** return the fixed length of encoded bytes */
-    virtual int get_length_of_encoding() { return fixed_len_; }
+    int get_length_of_encoding() override { return fixed_len_; }
 
     /** encode given value to bytes, note the NULL convention */
-    virtual void encode(const std::string& valueStr, std::vector<unsigned char> output, int outputOffset);
+    void encode(const std::string& valueStr, std::vector<unsigned char>& output, int outputOffset) override;
 
     /** decode given bytes to value string, note the NULL convention */
-    virtual std::string decode(std::vector<unsigned char> bytes, int offset, int len);
+    std::string decode(std::vector<unsigned char> bytes, int offset, int len) override;
 
    private:
     static const std::vector<uint64_t> CAP;

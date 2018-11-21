@@ -17,20 +17,16 @@
 #include <set>
 #include <string>
 
+#include "boost/algorithm/string.hpp"
+
 #include "core-metadata/measure/measure_type.hpp"
+#include "core-metadata/measure/measure_type_factory.hpp"
 #include "core-metadata/metadata/datatype/data_type.hpp"
 #include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-metadata/metadata/model/parameter_desc.hpp"
 
-#include "boost/algorithm/string.hpp"
-
 namespace husky {
 namespace cube {
-
-const char FunctionDesc::FUNC_SUM[] = "SUM";
-const char FunctionDesc::FUNC_MIN[] = "MIN";
-const char FunctionDesc::FUNC_MAX[] = "MAX";
-const char FunctionDesc::FUNC_COUNT[] = "COUNT";
 
 const std::set<std::string> FunctionDesc::BUILD_IN_AGGREGATIONS{"SUM", "MIN", "MAX", "COUNT"};
 
@@ -44,17 +40,21 @@ FunctionDesc::FunctionDesc(const std::string& expression, std::unique_ptr<Parame
       return_type_(return_type),
       return_data_type_(DataType::get_type(return_type)) {
     boost::to_upper(expression_);
+    measure_type_ = MeasureTypeFactory::create(expression_, return_data_type_);
 }
 
-void FunctionDesc::init(DataModelDesc* model) {
+void FunctionDesc::init(const DataModelDesc& model) {
     boost::to_upper(expression_);
     return_data_type_ = DataType::get_type(return_type_);
-    // TODO(tatiana): multiple parameters
-    if (parameter_->is_column_type()) {
-        std::string value = parameter_->get_value();
-        std::shared_ptr<TblColRef> colRef = model->find_column(value);
-        // p.setValue(colRef.get_identity());
-        parameter_->set_tbl_col_ref(colRef);
+    auto parameter = parameter_.get();
+    while (parameter != nullptr) {
+        if (parameter->is_column_type()) {
+            std::string value = parameter->get_value();
+            std::shared_ptr<TblColRef> col_ref = model.find_column(value);
+            parameter->set_value(col_ref->get_identity());
+            parameter->set_tbl_col_ref(col_ref);
+        }
+        parameter = parameter->next_parameter().get();
     }
 }
 

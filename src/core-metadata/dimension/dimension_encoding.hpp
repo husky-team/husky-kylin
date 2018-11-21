@@ -58,7 +58,7 @@ class DimensionEncoding {
     virtual int get_length_of_encoding() = 0;
 
     /** encode given value to bytes, note the NULL convention */
-    virtual void encode(const std::string& value, std::vector<unsigned char> output, int outputOffset) = 0;
+    virtual void encode(const std::string& value, std::vector<unsigned char>& output, int outputOffset) = 0;
 
     /** decode given bytes to value string, note the NULL convention */
     virtual std::string decode(std::vector<unsigned char> bytes, int offset, int len) = 0;

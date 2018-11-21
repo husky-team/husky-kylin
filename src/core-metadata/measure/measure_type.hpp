@@ -14,10 +14,27 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+
+#include "glog/logging.h"
+
 namespace husky {
 namespace cube {
 
-class MeasureType {};
+class MeasureAggregator {
+   public:
+    virtual void aggregate(std::string& val, const std::string& inc) const {
+        LOG(ERROR) << "Dummy base class for measure types not implemented";
+    }
+};
+
+class MeasureType {
+   public:
+    virtual ~MeasureType() {}
+    virtual std::shared_ptr<MeasureAggregator> new_aggregator() const = 0;
+    virtual void validate() const = 0;
+};
 
 }  // namespace cube
 }  // namespace husky

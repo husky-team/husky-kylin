@@ -41,6 +41,7 @@ TableRef::TableRef(DataModelDesc* model, const std::string& alias, TableDesc&& t
 std::shared_ptr<TblColRef> TableRef::get_column(const std::string& name) const {
     auto pos = columns_.find(name);
     if (pos == columns_.end()) {
+        DLOG(WARNING) << "Did not find column " << name << " in table " << table_.get_name();
         return nullptr;
     }
     return pos->second;

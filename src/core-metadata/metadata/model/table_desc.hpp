@@ -24,9 +24,11 @@
 namespace husky {
 namespace cube {
 
+using nlohmann::json;
+
 class TableDesc {
    public:
-    explicit TableDesc(const std::string& table_json_path);
+    explicit TableDesc(const json& table_json_path);
     ~TableDesc() {}
     // TabeleDesc * appendColumns(std::vector<ColumnDesc* > computedColumns, bool makeCopy);
     inline std::vector<ColumnDesc>& get_columns() { return columns_; }

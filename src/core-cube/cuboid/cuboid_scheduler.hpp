@@ -14,12 +14,13 @@
 
 #pragma once
 
-#include <math.h>
-#include <list>
+#include <cmath>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "core-cube/model/aggregation_group.hpp"
 #include "core-cube/model/cube_desc.hpp"
@@ -27,42 +28,44 @@
 namespace husky {
 namespace cube {
 
-class CuboidScheduler {
+class CuboidScheduler : public CuboidSchedulerBase {
    public:
-    explicit CuboidScheduler(CubeDesc* cube_desc);
-    ~CuboidScheduler() {}
+    explicit CuboidScheduler(const std::shared_ptr<CubeDesc>& cube_desc);
 
-    inline int get_cuboid_count() const { return all_cuboid_ids_.size(); }
-    inline std::set<uint64_t>& get_all_cuboid_ids() { return all_cuboid_ids_; }
-    inline const std::set<uint64_t>& get_all_cuboid_ids() const { return all_cuboid_ids_; }
-    std::list<uint64_t> get_spanning_cuboid(uint64_t cuboid);
+    inline std::set<uint64_t> get_all_cuboid_ids() const override { return all_cuboid_ids_; }
+    inline int get_cuboid_count() const override { return all_cuboid_ids_.size(); }
+    std::vector<uint64_t> get_spanning_cuboid(uint64_t parent_cuboid) const override;
 
-    inline bool is_valid(uint64_t requestCuboid) const {
+    inline bool is_valid(uint64_t requestCuboid) const override {
         return all_cuboid_ids_.find(requestCuboid) != all_cuboid_ids_.end();
     }
 
     /** Returns a valid cuboid that best matches the request cuboid. */
-    uint64_t find_best_match_cuboid(uint64_t cuboid) { return find_best_match_cuboid1(cuboid); }
-    uint64_t find_best_match_cuboid1(uint64_t cuboid);
+    uint64_t find_best_match_cuboid(uint64_t cuboid) const override;
+
+    void init_cuboid_tree(std::vector<uint64_t>& all_cuboid_ids) override;
 
    protected:
-    std::pair<std::set<uint64_t>, std::map<uint64_t, std::list<uint64_t>>> build_tree_bottom_up();
-    uint64_t do_find_best_match_cuboid1(uint64_t cuboid);
-
-    uint64_t get_on_tree_parent(uint64_t child);
-    uint64_t get_parent_on_promise(uint64_t child, std::set<uint64_t> coll, int forward);
-    std::set<uint64_t> get_on_tree_parents_by_layer(std::set<uint64_t> children) {
-        return std::set<uint64_t>(); /*TODO(tatiana)*/
+    inline bool check_dim_cap(AggregationGroup* agg, uint64_t cuboid_id) { return true; /*TODO(tatiana)*/ }
+    inline std::set<uint64_t> get_lowest_cuboids() const {
+        return get_on_tree_parents(0L, cube_desc_->get_aggregation_group_ptrs());
     }
-    std::set<uint64_t> get_lowest_cuboids() { return std::set<uint64_t>(); /*TODO(tatiana)*/ }
-    std::set<uint64_t> get_on_tree_parents(uint64_t child,
-                                           std::set<AggregationGroup*> groups = std::set<AggregationGroup*>());
+
+    std::pair<std::set<uint64_t>, std::map<uint64_t, std::vector<uint64_t>>> build_tree_bottom_up();
+    uint64_t do_find_best_match_cuboid1(uint64_t cuboid) const;
+
+    uint64_t get_on_tree_parent(uint64_t child) const;
+    uint64_t get_parent_on_promise(uint64_t child, const std::set<uint64_t>& coll, int forward);
+    std::set<uint64_t> get_on_tree_parents_by_layer(std::set<uint64_t> children);
+    std::set<uint64_t> get_on_tree_parents(uint64_t child, const std::vector<AggregationGroup*>& groups) const;
+    std::set<uint64_t> get_on_tree_parents(uint64_t child, AggregationGroup* agg) const;
+    std::set<uint64_t> get_on_tree_parents(uint64_t child) const;
+    bool fill_bit(uint64_t origin, uint64_t other, std::set<uint64_t>* collection) const;
 
    private:
     uint64_t max_;
-    CubeDesc* cube_desc_;  // not owned
     std::set<uint64_t> all_cuboid_ids_;
-    std::map<uint64_t, std::list<uint64_t>> parent2child_;
+    std::map<uint64_t, std::vector<uint64_t>> parent2child_;
 };
 
 }  // namespace cube

@@ -20,28 +20,28 @@
 
 #include "core-metadata/measure/measure_type.hpp"
 #include "core-metadata/metadata/datatype/data_type.hpp"
+#include "core-metadata/metadata/model/constants.hpp"
 #include "core-metadata/metadata/model/data_model_desc.hpp"
 #include "core-metadata/metadata/model/parameter_desc.hpp"
 
 namespace husky {
 namespace cube {
 
+using FunctionExpr::FUNC_COUNT;
+using FunctionExpr::FUNC_SUM;
+using FunctionExpr::FUNC_MAX;
+using FunctionExpr::FUNC_MIN;
+
 class FunctionDesc {
    public:
     FunctionDesc(const std::string& expression, std::unique_ptr<ParameterDesc>&& parameter,
                  const std::string& return_type);
-    ~FunctionDesc() {}
-
-    static const char FUNC_SUM[];
-    static const char FUNC_MIN[];
-    static const char FUNC_MAX[];
-    static const char FUNC_COUNT[];
 
     static const std::set<std::string> BUILD_IN_AGGREGATIONS;
     static const char PARAMETER_TYPE_CONSTANT[];
     static const char PARAMETER_TYPE_COLUMN[];
 
-    void init(DataModelDesc* model);
+    void init(const DataModelDesc& model);
 
     inline bool is_min() const { return expression_.compare(FUNC_MIN) == 0; }
     inline bool is_max() const { return expression_.compare(FUNC_MAX) == 0; }
@@ -55,16 +55,17 @@ class FunctionDesc {
     inline const std::string& get_return_type() const { return return_type_; }
     inline DataType* get_return_data_type() { return return_data_type_.get(); }
     void set_return_type(const std::string& return_type);
+    MeasureType* get_measure_type() const { return measure_type_.get(); }
 
    private:
     // from json
     std::string expression_;
-    std::unique_ptr<ParameterDesc> parameter_;  // just one parameter
+    std::unique_ptr<ParameterDesc> parameter_;
     std::string return_type_;
 
     // computed attributes
     std::shared_ptr<DataType> return_data_type_;
-    MeasureType measure_type_;
+    std::unique_ptr<MeasureType> measure_type_;
 };
 
 }  // namespace cube

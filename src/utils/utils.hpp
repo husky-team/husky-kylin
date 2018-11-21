@@ -32,5 +32,10 @@ void write_long(uint64_t num, std::vector<unsigned char>& bytes, int offset, int
 
 uint64_t read_long(const std::vector<unsigned char>& bytes, int offset, int size);
 
+int bit_count(uint64_t n);
+
+uint64_t highest_one_bit(uint64_t n);
+uint64_t number_of_leading_zeros(uint64_t n);
+
 }  // namespace utils
 }  // namespace husky

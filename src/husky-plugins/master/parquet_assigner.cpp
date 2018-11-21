@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "boost/filesystem.hpp"
 #include "parquet/column_reader.h"

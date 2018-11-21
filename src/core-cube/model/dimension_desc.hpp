@@ -45,6 +45,8 @@ class DimensionDesc {
     inline std::shared_ptr<TblColRef> get_column_ref() const { return column_ref_; }
     inline std::shared_ptr<TableRef> get_table_ref() const { return table_ref_; }
 
+    inline bool is_derived() { return column_ == ""; }
+
    private:
     // from json
     std::string name_;

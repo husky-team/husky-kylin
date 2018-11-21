@@ -21,6 +21,7 @@ file(GLOB core-cube-src
   cuboid/cuboid_scheduler.cpp
   cuboid/cuboid_scheduler_base.cpp
   cuboid/tree_cuboid_scheduler.cpp
+  model/aggregation_group.cpp
   model/cube_desc.cpp
   model/dimension_desc.cpp
   model/row_key_col_desc.cpp

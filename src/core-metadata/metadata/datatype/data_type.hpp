@@ -35,20 +35,20 @@ class DataType {
     static std::shared_ptr<DataType> get_type(const std::string& type);
 
     inline const std::string& get_name() const { return name_; }
-    inline int get_precision() { return precision_; }
-    inline int get_scale() { return scale_; }
+    inline int get_precision() const { return precision_; }
+    inline int get_scale() const { return scale_; }
 
-    inline bool is_string_family() { return STRING_FAMILY.find(name_) != STRING_FAMILY.end(); }
-    inline bool is_integer_family() { return INTEGER_FAMILY.find(name_) != INTEGER_FAMILY.end(); }
-    inline bool is_number_family() { return NUMBER_FAMILY.find(name_) != NUMBER_FAMILY.end(); }
-    inline bool is_tiny_int() { return name_.compare("tinyint") == 0; }
-    inline bool is_small_int() { return name_.compare("smallint") == 0; }
-    inline bool is_int() { return name_.compare("int") == 0; }
-    inline bool is_big_int() { return name_.compare("bigint") == 0; }
-    inline bool is_float() { return name_.compare("float") == 0; }
-    inline bool is_double() { return name_.compare("double") == 0; }
-    inline bool is_decimal() { return name_.compare("decimal") == 0; }
-    inline bool is_boolean() { return name_.compare("boolean") == 0; }
+    inline bool is_string_family() const { return STRING_FAMILY.find(name_) != STRING_FAMILY.end(); }
+    inline bool is_integer_family() const { return INTEGER_FAMILY.find(name_) != INTEGER_FAMILY.end(); }
+    inline bool is_number_family() const { return NUMBER_FAMILY.find(name_) != NUMBER_FAMILY.end(); }
+    inline bool is_tiny_int() const { return name_.compare("tinyint") == 0; }
+    inline bool is_small_int() const { return name_.compare("smallint") == 0; }
+    inline bool is_int() const { return name_.compare("int") == 0 || name_.compare("integer") == 0; }
+    inline bool is_big_int() const { return name_.compare("bigint") == 0; }
+    inline bool is_float() const { return name_.compare("float") == 0; }
+    inline bool is_double() const { return name_.compare("double") == 0; }
+    inline bool is_decimal() const { return name_.compare("decimal") == 0; }
+    inline bool is_boolean() const { return name_.compare("boolean") == 0; }
 
    private:
     std::string name_;

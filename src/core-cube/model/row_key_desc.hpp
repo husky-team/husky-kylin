@@ -29,11 +29,6 @@ class CubeDesc;
 
 class RowKeyDesc {
    public:
-    RowKeyDesc() {
-        // init_columns_need_index(); // about columns using "dictionary"
-    }
-    ~RowKeyDesc() {}
-
     inline const std::vector<std::shared_ptr<RowKeyColDesc>>& get_row_key_columns() const { return row_key_columns_; }
     inline int get_column_bit_index(const std::shared_ptr<TblColRef>& col) const {
         return get_col_desc(col)->get_bit_index();
@@ -48,9 +43,10 @@ class RowKeyDesc {
     inline uint64_t get_full_mask() const { return full_mask_; }
     // inline const std::vector<int>& get_columns_need_index() const { return columns_need_index_; }
 
-    inline void set_cube_desc(CubeDesc* cube_desc) {
+    void set_cube_desc(CubeDesc* cube_desc) {
         cube_desc_ = cube_desc;
         build_row_key();
+        // init_columns_need_index(); // about columns using "dictionary"
     }
     inline void add_row_key_col(const std::shared_ptr<RowKeyColDesc>& row_key_col) {
         row_key_columns_.push_back(row_key_col);
