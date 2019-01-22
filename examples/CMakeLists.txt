@@ -26,6 +26,14 @@ target_link_libraries(WordCountORC ${HUSKY_EXTERNAL_LIB})
 set_property(TARGET WordCountORC PROPERTY CXX_STANDARD 14)
 add_dependencies(WordCountORC ${EXTERNAL_DEPENDENCIES})
 
+# Calcite_ORC
+add_executable(WordCalORC wc_cal_orc.cpp)
+target_link_libraries(WordCalORC ${husky-kylin})
+target_link_libraries(WordCalORC ${EXTERNAL_LIB})
+target_link_libraries(WordCalORC ${HUSKY_EXTERNAL_LIB})
+set_property(TARGET WordCalORC PROPERTY CXX_STANDARD 14)
+add_dependencies(WordCalORC ${EXTERNAL_DEPENDENCIES})
+
 # WordCountPARQUET
 add_executable(WordCountPARQUET wc_mr_parquet.cpp)
 target_link_libraries(WordCountPARQUET ${husky-kylin})

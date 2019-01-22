@@ -16,6 +16,7 @@
 #include "husky-plugins/io/input/orc_file_splitter.hpp"
 
 #include <string>
+#include <list>
 #include <vector>
 
 #include "orc/ColumnPrinter.hh"
@@ -29,6 +30,7 @@
 
 #include "husky-plugins/core/constants.hpp"
 #include "husky-plugins/io/input/orc_hdfs_inputstream.hpp"
+#include "husky-plugins/nlohmann/json.hpp"
 
 namespace orc {
 
@@ -103,6 +105,15 @@ void ORCFileSplitter::load(std::string url) {
     hdfsBuilderSetNameNodePort(builder, std::stoi(husky::Context::get_param("hdfs_namenode_port")));
     fs_ = hdfsBuilderConnect(builder);
     hdfsFreeBuilder(builder);
+
+    //Read projection list from JSON
+    std::ifstream input_json(husky::Context::get_param("input"));
+    using json = nlohmann::json;
+    json j_obj;
+    input_json >> j_obj;
+    proj_ids = std::list<uint64_t>();
+    for(json::iterator it  = j_obj["projection"].begin(); it != j_obj["projection"].end(); ++it)
+        proj_ids.push_back((*it)["id"]);
 }
 
 // ask master for offset and url
@@ -130,6 +141,7 @@ boost::string_ref ORCFileSplitter::read_by_batch(size_t offset) {
     try {
         std::string line = "";
         orc::RowReaderOptions row_opts;
+        row_opts.include(proj_ids);
         std::unique_ptr<orc::RowReader> row_reader = reader_->createRowReader(row_opts);
         row_reader->seekToRow(offset);
         std::unique_ptr<orc::ColumnPrinter> printer(new orc::HDFSColumnPrinter(line, row_reader->getSelectedType()));

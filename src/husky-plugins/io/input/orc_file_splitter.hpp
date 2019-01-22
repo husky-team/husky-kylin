@@ -16,6 +16,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <list>
 
 #include "boost/utility/string_ref.hpp"
 #include "hdfs/hdfs.h"
@@ -59,6 +61,8 @@ class ORCFileSplitter final : public FileSplitterBase {
     static size_t row_batch_size_;
     // protocol can be hdfs or nfs
     std::string protocol_;
+    // selected columns
+    std::list<uint64_t> proj_ids;
     // current filename
     std::string cur_fn_;
     // orc reader to help to read orc files
