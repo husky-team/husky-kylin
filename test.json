@@ -1,0 +1,20 @@
+{
+  "name": "HuskyLogicalCalc",
+  "projection": [
+    {
+      "name": "l_orderkey",
+      "id": 0
+    },
+    {
+      "name": "l_partkey",
+      "id": 1
+    },
+    {
+      "name": "l_superkey",
+      "id": 2
+    }
+  ],
+  "type": "Calc",
+  "version": "1.0",
+  "url": "hdfs:\/\/\/amuro_wang"
+}

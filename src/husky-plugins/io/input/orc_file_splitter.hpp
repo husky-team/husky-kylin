@@ -16,6 +16,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "boost/utility/string_ref.hpp"
 #include "hdfs/hdfs.h"
@@ -24,6 +25,7 @@
 
 #include "io/input/file_splitter_base.hpp"
 
+#include "husky-plugins/nlohmann/json.hpp"
 namespace husky {
 namespace io {
 
@@ -44,6 +46,8 @@ class ORCFileSplitter final : public FileSplitterBase {
     // get the starting position of splitter
     // just to keep consistent with LineInputFormat
     inline size_t get_offset() { return offset_; }
+     
+    bool computeBoolRes(nlohmann::json conds, orc::ColumnVectorBatch& batch, int rowId, int num_of_fields);
 
    protected:
     // TODO dy: coding style: names of private and protected variables end with
@@ -65,6 +69,10 @@ class ORCFileSplitter final : public FileSplitterBase {
     std::unique_ptr<orc::Reader> reader_;
     // handle of HDFS
     hdfsFS fs_;
+
+    nlohmann::json conds_;
+
+    std::vector<int> fieldTypes_;
 };
 
 }  // namespace io
