@@ -1,0 +1,70 @@
+{
+  "condition": {
+    "num of operand": 2,
+    "operand 2": {
+      "num of operand": 2,
+      "operand 2": {
+        "num of operand": 2,
+        "operand 2": {
+          "id": 23,
+          "num of operand": 1,
+          "value": "0.08"
+        },
+        "operand 1": {
+          "id": 6,
+          "num of operand": 1,
+          "value": "l_discount"
+        },
+        "operator": ">"
+      },
+      "operand 1": {
+        "num of operand": 2,
+        "operand 2": {
+          "id": 20,
+          "num of operand": 1,
+          "value": "5"
+        },
+        "operand 1": {
+          "id": 3,
+          "num of operand": 1,
+          "value": "linenumber"
+        },
+        "operator": "<"
+      },
+      "operator": "OR"
+    },
+    "operand 1": {
+      "num of operand": 2,
+      "operand 2": {
+        "id": 17,
+        "num of operand": 1,
+        "value": "40962.33"
+      },
+      "operand 1": {
+        "id": 5,
+        "num of operand": 1,
+        "value": "l_extendedprice"
+      },
+      "operator": ">"
+    },
+    "operator": "AND"
+  },
+  "name": "HuskyLogicalCalc",
+  "projection": [
+    {
+      "name": "l_superkey",
+      "id": 2
+    },
+    {
+      "name": "linenumber",
+      "id": 3
+    },
+    {
+      "name": "l_extendedprice",
+      "id": 5
+    }
+  ],
+  "type": "Calc",
+  "version": "1.0",
+  "url": "hdfs:\/\/\/amuro_wang"
+}
